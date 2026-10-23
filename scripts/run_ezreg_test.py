@@ -13,6 +13,7 @@ import time
 from datetime import timedelta
 import datetime
 import threading
+import ezreg_script_writer
 import ezreg_tool_manager
 import ezreg_path_manager
 import ezreg_task_manager
@@ -31,6 +32,45 @@ __SELECT_ALL_TASKS__ = "all"
 # Initialize logger
 #####################################################################
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+
+#####################################################################
+# Generate the runtime script
+def generate_run_script_fpath(fdir, fname):
+    return os.path.join(os.path.abspath(fdir), fname)
+
+#####################################################################
+# Generate the runtime script based on a given template and task settings
+def generate_run_script_file(run_script_fpath, task_mgr, task_idx, subtask_idx):
+    # Log runtime
+    start_time = time.time()
+    num_err = 0
+    logging.info("Writing run script file '" + str(run_script_fpath) + "'...")
+
+    script_writer = ezreg_script_writer.EzregScriptWriter()
+    # Set template file
+    script_tmpl_file_abspath = task_mgr.subtask_template_path(task_idx, subtask_idx),
+    script_writer.set_template_file(script_tmpl_file_abspath)
+    # Add variables to replace
+    for slrv_name in task_mgr.subtask_single_line_replace_variables(task_idx, subtask_idx):
+        script_writer.add_single_line_replace_variable(
+            slrv_name, task_mgr.subtask_single_line_replace_value(task_idx, subtask_idx, slrv_name)
+        )
+    for mlrv_name in task_mgr.subtask_multi_line_replace_variables(task_idx, subtask_idx):
+        script_writer.add_multi_line_replace_variable(
+            mlrv_name, task_mgr.subtask_multi_line_replace_value(task_idx, subtask_idx, mlrv_name)
+        )
+
+    # Output to file
+    os.makedirs(os.path.dirname(run_script_fpath), exist_ok=True)
+    ys_writer.write(run_script_fpath)
+
+    end_time = time.time()
+    time_diff = timedelta(seconds=(end_time - start_time))
+
+    time_str = "Write runtime script file took " + str(time_diff)
+    logging.info(time_str)
+
+    return num_err
 
 ##################################################################
 # Main function
@@ -135,9 +175,20 @@ if __name__ == "__main__":
             job_name_str = ".".join([task_name, stask_name])
             job_name = "_".join([task_name, stask_name])
             job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
-            job_mgr.set_rundir(job_name, task_mgr.subtask_workspace(task_id, stask_id))
-            # TODO: generate run script and add to job_mgr
+            curr_rundir = task_mgr.subtask_workspace(task_id, stask_id)
+            job_mgr.set_rundir(job_name, curr_rundir)
+            # TODO: generate run script
+            curr_tool = task_mgr.subtask_tut(task_id, stask_id)
+            curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tool_mgr.runtime_script(curr_tool))
+            num_error += generate_run_script(curr_run_script_fpath, task_mgr, task_id, stask_id)
+            # Config the tool, binary and args for the current job
+            cust_args = {}
+            cust_args[ezreg_tool_manager.TCL_KEYWORD] = [str(os.path.abspath(curr_run_script_fpath))]
+            curr_tool_bin = tool_mgr.binary_path(curr_tool)
+            curr_tool_args = tool_mgr.tool_args(curr_tool, cust_args)
             # TODO: configure tool args to job mgr
+            job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
+            # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id)):
                 job_mgr.add_depenency(job_name, job_dep)
 

@@ -8,6 +8,7 @@
 #   - the '[tcl]' is defined through the syntax 'tcl' 
 yosys:
   bin: yosys
+  runtime_script: run.ys
   options: "kargs"
 #  options: "pargs kargs"
 #  pargs:

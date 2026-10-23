@@ -92,6 +92,17 @@ class EzRegTaskManager:
         self.__valid_subtask(task_idx, subtask_idx)
         return self.__task_subtask_enable_[task_idx][subtask_idx]
 
+    def subtask_tut(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_tut_[task_idx][subtask_idx]
+
+    def subtask_template_path(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        raw_ret = self.__task_subtask_template_paths_[task_idx][subtask_idx]
+        return self.__replace_keyword(raw_ret):
+
     def subtask_expect_failure(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)

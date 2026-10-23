@@ -4,6 +4,7 @@ import os
 
 # Constants
 BIN_TAG = "bin"
+RUNTIME_SCRIPT_TAG = "runtime_script"
 OPTIONS_TAG = "options"
 PARGS_TAG = "pargs"
 PARGS_NAME_TAG = "name"
@@ -41,6 +42,14 @@ class EzRegToolManager:
                 f"Required syntax '{BIN_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
             )
         return self.__db_[tool][BIN_TAG]
+
+    def runtime_script(self, tool):
+        self.__valid_tool(tool)
+        if RUNTIME_SCRIPT_TAG not in self.__db_[tool]:
+            raise Exception(
+                f"Required syntax '{RUNTIME_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+            )
+        return self.__db_[tool][RUNTIME_SCRIPT_TAG]
 
     def __tool_pargs(self, tool, cust_args):
         if PARGS_TAG not in self.__db_[tool]:
