@@ -42,12 +42,21 @@ class EzRegTaskManager:
         self.__EXPECT_FAILURE_STRING_ = {"true": True, "false": False}
         # Replace keywords
         self.__replace_keywords_ = {}
+        # Reserved keywords
+        self.__KEYWORD_CURRENT_DESIGN_ = "[current_design]"
 
     def add_replace_keyword(self, kw, val):
         self.__replace_keywords_[kw] = val
 
-    def __replace_keyword(self, in_str):
+    def __replace_external_keyword(self, in_str):
         tmp_str = in_str
+        for kw in self.__replace_keywords_.keys():
+            tmp_str = tmp_str.replace(kw, self.__replace_keywords_[kw])
+        return tmp_str
+
+    def __replace_keyword(self, in_str, task_idx, subtask_idx):
+        tmp_str = in_str
+        tmp_str = tmp_str.replace(self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx))
         for kw in self.__replace_keywords_.keys():
             tmp_str = tmp_str.replace(kw, self.__replace_keywords_[kw])
         return tmp_str
@@ -122,7 +131,7 @@ class EzRegTaskManager:
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
         raw_ret = self.__task_subtask_template_paths_[task_idx][subtask_idx]
-        return self.__replace_keyword(raw_ret)
+        return self.__replace_keyword(raw_ret, task_idx, subtask_idx)
 
     def subtask_single_line_replace_variables(self, task_idx, subtask_idx):
         self.__check_valid()
@@ -142,7 +151,7 @@ class EzRegTaskManager:
         raw_ret = self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx][
             var_name
         ]
-        return self.__replace_keyword(raw_ret)
+        return self.__replace_keyword(raw_ret, task_idx, subtask_idx)
 
     def subtask_multi_line_replace_variables(self, task_idx, subtask_idx):
         self.__check_valid()
@@ -164,7 +173,7 @@ class EzRegTaskManager:
         ]
         final_ret = []
         for tmp in raw_ret:
-            final_ret.append(self.__replace_keyword(tmp))
+            final_ret.append(self.__replace_keyword(tmp, task_idx, subtask_idx))
         return final_ret
 
     def subtask_expect_failure(self, task_idx, subtask_idx):
@@ -218,10 +227,10 @@ class EzRegTaskManager:
             self.__check_required_yaml_syntax(
                 yaml_db[REG_TASK_TAG][itask], REG_TASK_SUBTASKS_TAG, f"under task '{task_name}'"
             )
-            task_wkspace = self.__replace_keyword(
+            task_wkspace = self.__replace_external_keyword(
                 yaml_db[REG_TASK_TAG][itask][REG_TASK_WORKSPACE_TAG]
             )
-            task_subtask_config = self.__replace_keyword(
+            task_subtask_config = self.__replace_external_keyword(
                 yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG]
             )
             if REG_SUBTASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
