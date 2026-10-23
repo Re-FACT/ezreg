@@ -43,6 +43,23 @@ Syntax
 
   Define if the testcase is expected to be failed. By default, it is ``false``.
 
+Variable matching
+-----------------
+
+To match the variables, the template script file should use the uppercase within ``${}`` 
+For example:
+
+.. code-block:: yaml
+
+  # Subtask
+  single_line_replaced_variables:
+    top_module: and2
+
+.. code-block::
+
+  # template file
+  write_verilog ${TOP_MODULE}
+
 .. _file_format_subtask_file_reserved_words:
 
 Reserved words
