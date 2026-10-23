@@ -18,7 +18,7 @@ class EzRegScriptWriter:
         self.__template_file_ = val
 
     def __var_to_match_pattern(self, var):
-        return "${" + var + "}"
+        return "${" + var.upper() + "}"
 
     def add_multi_line_replace_variable(self, var, vals):
         self.__mlrv_[var] = vals
@@ -31,8 +31,15 @@ class EzRegScriptWriter:
         for var in self.__slrv_.keys():
             mpattern = self.__var_to_match_pattern(var)
             if mpattern in o_line:
-                o_line.replace(mpattern, self.__slrv_[var])
+                o_line = o_line.replace(mpattern, self.__slrv_[var])
         return o_line
+
+    def __found_slrv_in_line(self, i_line):
+        for var in self.__slrv_.keys():
+            mpattern = self.__var_to_match_pattern(var)
+            if mpattern in i_line:
+                return True
+        return False
 
     def __found_mlrv_in_line(self, i_line):
         for var in self.__mlrv_.keys():
@@ -47,18 +54,21 @@ class EzRegScriptWriter:
         using the Cartesian product of their respective lists.
         """
         # Find all unique variable placeholders in the line
-        placeholders = re.findall(r"\${(\w+)}", line)
+        placeholders = re.findall(r"\${(\w+)}", i_line)
         if not placeholders:
             return [line]  # Returns the line as-is, keeping \n
-
-        variables = self.__mlrv_
+        # Reorg the match variables here
+        variables = {}
+        for var in self.__mlrv_.keys():
+            mpattern = var.upper()
+            variables[mpattern] = self.__mlrv_[var]
 
         # Extract the lists corresponding to those placeholders
         lists_to_combine = [variables[p] for p in placeholders]
 
         expanded_lines = []
         for combination in itertools.product(*lists_to_combine):
-            current_line = line
+            current_line = i_line
             for placeholder, value in zip(placeholders, combination):
                 current_line = current_line.replace(f"${{{placeholder}}}", value)
             # No .strip() or .rstrip() used here,
@@ -72,6 +82,10 @@ class EzRegScriptWriter:
     # 2. If the line does not contain any multi-line replace variable, do the output and early exit. Otherwise, continue on next step
     # 3. Base on the result of step 1, replace all the multi-line replace variables. In this step, multiple lines will be created.
     def __rewrite_line(self, fp, i_line):
+        # Not match at all, output directly
+        if not self.__found_slrv_in_line(i_line) and not self.__found_mlrv_in_line(i_line):
+            fp.write(i_line)
+            return
         # Step 1
         o_line = self.__update_line_with_slrv(i_line)
         # Step 2
@@ -79,8 +93,9 @@ class EzRegScriptWriter:
             fp.write(o_line)
             return
         # Step 3
-        mo_line = self.__update_line_with_mlrv(o_line)
-        fp.write(mo_line)
+        o_lines = self.__update_line_with_mlrv(o_line)
+        for curr_o_line in o_lines:
+            fp.write(curr_o_line)
 
     # Write content to a file
     def write(self, fname):
