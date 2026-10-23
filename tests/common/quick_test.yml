@@ -1,0 +1,8 @@
+# task configuration
+reg_tasks:
+  - name: ys_quick_test
+    workspace: "[TASK_ROOT]/ys_quick_test/_work"
+    subtasks: "[TASK_ROOT]/ys_quick_test/config/task.yaml" 
+#    depend:
+#      - "ys_quick_test"
+    expect_failure: false
