@@ -39,6 +39,12 @@ if __name__ == "__main__":
     # Parse the options and apply sanity checks
     parser = argparse.ArgumentParser(description="Run regression tests with a given task list ")
     parser.add_argument(
+        "--path_config", required=True, help="A yaml file contains a list of root paths to be used in task configuration file"
+    )
+    parser.add_argument(
+        "--tut_config", required=True, help="A yaml file contains a list of tools under tests"
+    )
+    parser.add_argument(
         "--task", required=True, help="A yaml file contains a list of tasks to test"
     )
     parser.add_argument(
@@ -63,11 +69,24 @@ if __name__ == "__main__":
         action="store_true",
         help="Perform dry-run without running program. Useful for debugging.",
     )
-    parser.add_argument("--output_html_file", help="Output html file for status report")
+    # TODO: Add log error keyword setting file
+    # TODO: Add log qor keyword setting file
+    # TODO: generatei HTML format report or other format
+    parser.add_argument("--report", help="Output status report")
 
     args = parser.parse_args()
 
     num_errors = 0
+
+    # Read tool configuration
+    tool_mgr = ezreg_tool_manager.EzRegToolManager()
+    tool_mgr.load(args.tool_config)
+    # Early exit condition: when no test case is listed
+    if tool_mgr.empty():
+        logging.info("No tool under test found. Exiting...")
+        exit(error_codes["ERROR"])
+    # Read common settings on paths
+    path_mgr = ezreg_path_manager.EzRegPathManager()
 
     # Read task configuration
     task_mgr = ezreg_task_manager.EzRegTaskManager()
