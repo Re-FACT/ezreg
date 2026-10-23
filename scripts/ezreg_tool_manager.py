@@ -106,6 +106,10 @@ class EzRegToolManager:
                 arg_str += self.__tool_kargs(tool, cust_args)
         return arg_str
 
+    def empty(self):
+        self.__check_valid()
+        return not self.__db_
+
     # Internal method to check if data is valid, throw exeception when invalid. Useful for accessors
     def __check_valid(self):
         if self.__is_dirty_ == True:
