@@ -94,9 +94,9 @@ class EzRegTaskManager:
     def is_valid(self):
         return not (self.__is_dirty_)
 
-    def __check_required_yaml_syntax(self, parent_node, req_node_name, curr_node_name):
+    def __check_required_yaml_syntax(self, parent_node, req_node_name, loc_msg):
         if req_node not in parent_node:
-            raise Exception(f"Require syntax '{TASK_TAG}' is missing under the node '{curr_node_name}'\n")
+            raise Exception(f"Require syntax '{TASK_TAG}' is missing {loc_msg}\n")
 
     # Load data from yaml file
     def __load_from_yaml(self, yaml_filename):
@@ -111,20 +111,20 @@ class EzRegTaskManager:
         self.__task_workspaces_ = []
         self.__task_dependencies_ = []
         # check required syntax
-        self.__check_required_yaml_syntax(yaml_db, TASK_TAG, "root"):
-        for itask in range(len(yaml_db[TASK_TAG])):
-            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_TAG):
-            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_WORKSPACE_TAG):
-            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_SUBTASKS_TAG):
-            task_name = yaml_db[TASK_TAG][itask][TASK_NAME_TAG]
-            task_wkspace = self.__replace_keyword(yaml_db[TASK_TAG][itask][TASK_WORKSPACE_TAG])
-            task_subtask_config = self.__replace_keyword(yaml_db[TASK_TAG][itask][TASK_SUBTASKS_TAG])
+        self.__check_required_yaml_syntax(yaml_db, REG_TASK_TAG, "as root node"):
+        for itask in range(len(yaml_db[REG_TASK_TAG])):
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_NAME_TAG, f"under '{REG_TASK_TAG}' node {itask}"):
+            task_name = yaml_db[REG_TASK_TAG][itask][REG_TASK_NAME_TAG]
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_WORKSPACE_TAG, f"under task '{task_name}'"):
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_SUBTASKS_TAG, f"under task '{task_name}'"):
+            task_wkspace = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_WORKSPACE_TAG])
+            task_subtask_config = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG])
             task_deps = []
-            if TASK_DEP_TAG in yaml_db[TASK_TAG][itask]:
-                task_deps = yaml_db[TASK_TAG][itask][TASK_DEP_TAG]
+            if REG_TASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
+                task_deps = yaml_db[REG_TASK_TAG][itask][REG_TASK_DEP_TAG]
             task_expect_failure = False
-            if TASK_EXPECT_FAILURE_TAG in yaml_db[TASK_TAG][itask]:
-                task_expect_failure = yaml_db[TASK_TAG][itask][TASK_EXPECT_FAILURE_TAG]
+            if REG_TASK_EXPECT_FAILURE_TAG in yaml_db[REG_TASK_TAG][itask]:
+                task_expect_failure = yaml_db[REG_TASK_TAG][itask][REG_TASK_EXPECT_FAILURE_TAG]
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
             self.__task_subtask_configs_.append(task_subtask_config)
@@ -144,6 +144,12 @@ class EzRegTaskManager:
                 except yaml.YAMLError as exc:
                     logging.error(exc)
             for subtask_name in subyaml_db:
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_ENABLE_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TUT_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TMP_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_PATH_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_MLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_SLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
                 subtask_enable = subyaml_db[subtask_name][REG_SUBTASK_ENABLE_TAG]
                 subtask_tut = subyaml_db[subtask_name][REG_SUBTASK_TUT_TAG]
                 subtask_tmpl_path = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_PATH_TAG]
