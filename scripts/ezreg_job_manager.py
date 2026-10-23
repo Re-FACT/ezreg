@@ -182,7 +182,7 @@ class EzRegJobManager:
         # Log runtime
         start_time = time.time()
         runtime_dir = os.path.abspath(self.__job_rundirs_[job_idx])
-        log_path = os.path.join(runtime_dir, self.__task_logs_[job_idx])
+        log_path = os.path.join(runtime_dir, self.__job_logs_[job_idx])
         log_abspath = os.path.abspath(log_path)
         # Check if the tcl script is valid
         if not os.path.isfile(log_abspath):
