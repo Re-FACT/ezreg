@@ -25,9 +25,6 @@ import ezreg_task_selection
 #####################################################################
 error_codes = {"SUCCESS": 0, "ERROR": 1, "FILE_ERROR": 2}
 
-# Constants
-__SELECT_ALL_TASKS__ = "all"
-
 #####################################################################
 # Initialize logger
 #####################################################################
@@ -94,7 +91,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--task_select",
-        default=reg_test_task_selection.ALL_TASK_SELECTED,
+        default=ezreg_task_selection.ALL_TASK_SELECTED,
         help="Pick the single task to be run. Useful for debugging. The format is [task1,task2,task3]. By default, all tasks are selected",
     )
     parser.add_argument(
@@ -117,7 +114,7 @@ if __name__ == "__main__":
     # TODO: Add log error keyword setting file
     # TODO: Add log qor keyword setting file
     # TODO: generatei HTML format report or other format
-    parser.add_argument("--report", help="Output status report")
+    # parser.add_argument("--report", help="Output status report")
 
     args = parser.parse_args()
 
@@ -154,8 +151,9 @@ if __name__ == "__main__":
     # Preload task selection
     t_sel = ezreg_task_selection.EzRegTaskSelection()
     for t_idx in task_mgr.tasks():
-        t_name = task_mgr.task_name(t_idx)
-        t_sel.add_predefined_task(t_name)
+        for st_idx in task_mgr.subtasks(t_idx):
+            t_name = task_mgr.subtask_job_name_str(t_idx, st_idx)
+            t_sel.add_predefined_task(t_name)
     t_sel.read_task_selection_str(args.task_select)
     # Report a stats for selected jobs
     logging.info(f"Selected {t_sel.num_selected()}/{t_sel.total()} tasks")
@@ -164,16 +162,16 @@ if __name__ == "__main__":
     # Add jobs one by one
     for task_id in task_mgr.tasks():
         task_name = task_mgr.task_name(task_id)
-        # Bypass the task which is not selected
-        if not t_sel.is_selected(task_name):
-            continue
         # Walk through subtasks
         for stask_id in task_mgr.subtasks(task_id):
+            stask_name = task_mgr.subtask_name(task_id, stask_id)
+            job_name_str = task_mgr.subtask_job_name_str(task_id, stask_id)
+            job_name = task_mgr.subtask_job_name(task_id, stask_id)
+            # Bypass the task which is not selected
+            if not t_sel.is_selected(job_name_str):
+                continue
             if not task_mgr.subtask_enabled(task_id, stask_id):
                 continue
-            stask_name = task_mgr.subtask_name(task_id, stask_id)
-            job_name_str = ".".join([task_name, stask_name])
-            job_name = "_".join([task_name, stask_name])
             job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
             curr_rundir = task_mgr.subtask_workspace(task_id, stask_id)
             job_mgr.set_rundir(job_name, curr_rundir)

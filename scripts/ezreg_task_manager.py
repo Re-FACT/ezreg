@@ -82,6 +82,16 @@ class EzRegTaskManager:
         self.__valid_task(task_idx)
         return self.__task_names_[task_idx]
 
+    def subtask_job_name_str(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return ".".join([self.__task_names_[task_idx], self.__task_subtask_names_[task_idx][subtask_idx]])
+
+    def subtask_job_name(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return "_".join([self.__task_names_[task_idx], self.__task_subtask_names_[task_idx][subtask_idx]])
+
     def subtask_name(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
