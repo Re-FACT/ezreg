@@ -26,7 +26,7 @@ jobs:
           make quick_test
 
   reg_test:
-    name: Quick tests
+    name: Reg tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
