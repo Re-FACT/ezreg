@@ -103,6 +103,35 @@ class EzRegTaskManager:
         raw_ret = self.__task_subtask_template_paths_[task_idx][subtask_idx]
         return self.__replace_keyword(raw_ret):
 
+    def subtask_single_line_replace_variables(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx].keys()
+
+    def subtask_single_line_replace_value(self, task_idx, subtask_idx, var_name):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        if var_name not in self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx].keys()
+            raise Exception(f"Variable '{var_name}' does not exist in the single-line-replace-variables of subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx, subtask_idx)}'")
+        raw_ret = self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx][var_name]
+        return self.__replace_keyword(raw_ret):
+
+    def subtask_multi_line_replace_variables(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx].keys()
+
+    def subtask_multi_line_replace_value(self, task_idx, subtask_idx, var_name):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        if var_name not in self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx].keys()
+            raise Exception(f"Variable '{var_name}' does not exist in the multiple-line-replace-variables of subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx, subtask_idx)}'")
+        raw_ret = self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx][var_name]
+        final_ret = []
+        for tmp in raw_ret:
+            final_ret.append(self.__replace_keyword(tmp))
+        return final_ret
+
     def subtask_expect_failure(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)

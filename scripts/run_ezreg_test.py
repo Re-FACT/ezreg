@@ -177,7 +177,7 @@ if __name__ == "__main__":
             job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
             curr_rundir = task_mgr.subtask_workspace(task_id, stask_id)
             job_mgr.set_rundir(job_name, curr_rundir)
-            # TODO: generate run script
+            # generate run script
             curr_tool = task_mgr.subtask_tut(task_id, stask_id)
             curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tool_mgr.runtime_script(curr_tool))
             num_error += generate_run_script(curr_run_script_fpath, task_mgr, task_id, stask_id)
@@ -186,7 +186,7 @@ if __name__ == "__main__":
             cust_args[ezreg_tool_manager.TCL_KEYWORD] = [str(os.path.abspath(curr_run_script_fpath))]
             curr_tool_bin = tool_mgr.binary_path(curr_tool)
             curr_tool_args = tool_mgr.tool_args(curr_tool, cust_args)
-            # TODO: configure tool args to job mgr
+            # configure tool args to job mgr
             job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
             # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id)):
