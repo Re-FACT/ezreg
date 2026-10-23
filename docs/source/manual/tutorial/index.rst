@@ -9,5 +9,5 @@ Tutorials
 
    compile
 
-   quick_start_synthesis_task
+   quick_start
 
