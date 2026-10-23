@@ -1,0 +1,50 @@
+name: Test
+
+# Only run for pull requests as we care contribution to the main
+# - There are changes in RTL files
+on:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  quick_test:
+    name: Quick tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo python3 -m pip install -r requirements.txt
+
+      - name: Running test
+        shell: bash
+        run: |
+          make quick_test
+
+  reg_test:
+    name: Quick tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install OSS CAD Suite (includes Yosys)
+        uses: YosysHQ/setup-oss-cad-suite@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
+          
+      - name: Verify Yosys Installation
+        run: yosys --version
+
+      - name: Install dependencies
+        run: |
+          sudo python3 -m pip install -r requirements.txt
+
+      - name: Running test
+        shell: bash
+        run: |
+          make reg_test
