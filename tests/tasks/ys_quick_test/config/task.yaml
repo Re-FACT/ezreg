@@ -4,15 +4,15 @@ and2x2:
   enable: true # If set false, the subtask will not be added
   tool_under_test: yosys # Use the tool configuration file setting. Must be a valid entity name
   template:
-    path: "[TEMPLATE_ROOT_PATH]/ys_run_tmpl.ys" # Template path has a root from the configuration file 
+    path: "[TEMPLATE_ROOT]/ys_run_tmpl.ys" # Template path has a root from the configuration file 
     # For muiltiple line replaced variables, each match will create a new line
     # For example, 
     #   read_verilog and2.v
     #   read_verilog and2x2.v
     multiple_line_replaced_variables: 
       design_inputs:
-        - "[BENCHMARK_ROOT_PATH]/and2x2/and2.v"
-        - "[BENCHMARK_ROOT_PATH]/and2x2/and2x2.v"
+        - "[BENCHMARK_ROOT]/and2x2/and2.v"
+        - "[BENCHMARK_ROOT]/and2x2/and2x2.v"
     # For single line replaced variables, each match will only modify the line matched
     single_line_replaced_variables: 
       design_output: "and2_post_synth.v"

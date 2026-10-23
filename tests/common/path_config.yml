@@ -10,3 +10,4 @@
 #   /home/xtang/etc/benchmarks/and2/and2.v
 benchmark_root: "[ROOT_PATH]/etc/benchmarks"
 template_root: "[ROOT_PATH]/tests/tmpl"
+task_root: "[ROOT_PATH]/tests/tasks"

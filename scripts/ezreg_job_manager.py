@@ -66,11 +66,6 @@ class EzRegJobManager:
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        # Should have a valid name
-        if tool_name not in self.__SUPPORTED_TOOLS_:
-            raise Exception(
-                f"Invalid tool name '{tool_name}'. Expect one of the following: {self.__SUPPORTED_TOOLS_}"
-            )
         self.__job_tool_names_[job_idx] = tool_name
         self.__job_tool_bins_[job_idx] = tool_bin
         self.__job_tool_args_[job_idx] = tool_args
@@ -87,7 +82,7 @@ class EzRegJobManager:
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        self.__rundirs_[job_idx] = val
+        self.__job_rundirs_[job_idx] = val
 
     # Set the tcl script to run the DC job
     def set_job_deps(self, job_name, val):
@@ -122,7 +117,7 @@ class EzRegJobManager:
 
             start_time_str = datetime.fromtimestamp(start_time).isoformat()
             time_logging_space = (
-                "." * (SPACE_LIMIT - len(job_name) - len(" start at") - len(start_time_str) - 2)
+                "." * (EZREG_NUM_CHAR_PER_LINE - len(job_name) - len(" start at") - len(start_time_str) - 2)
                 + " "
             )
             logging.info(job_name + " start at" + time_logging_space + start_time_str)
@@ -289,7 +284,7 @@ class EzRegJobManager:
                 job_idx = self.__job_names_.index(task_name)
                 curr_job_status = job_status[task_name]
                 # Create a space when logging
-                logging_space = " " + "." * (SPACE_LIMIT - len(task_name) - 2) + " "
+                logging_space = " " + "." * (EZREG_NUM_CHAR_PER_LINE - len(task_name) - 2) + " "
                 if dryrun:
                     if curr_job_status == 0:
                         self.__error_counts_[job_idx] += curr_job_status
@@ -330,7 +325,7 @@ class EzRegJobManager:
                     time_diff = job_time[task_name]
                     time_str = "took " + str(time_diff)
                     time_logging_space = (
-                        "." * (SPACE_LIMIT - len(task_name) - len(time_str) - 2) + " "
+                        "." * (EZREG_NUM_CHAR_PER_LINE - len(task_name) - len(time_str) - 2) + " "
                     )
                     logging.info(task_name + time_logging_space + time_str)
                 total_num_jobs += 1

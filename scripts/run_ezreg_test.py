@@ -43,9 +43,10 @@ def generate_run_script_file(run_script_fpath, task_mgr, task_idx, subtask_idx):
     num_err = 0
     logging.info("Writing run script file '" + str(run_script_fpath) + "'...")
 
-    script_writer = ezreg_script_writer.EzregScriptWriter()
+    script_writer = ezreg_script_writer.EzRegScriptWriter()
     # Set template file
-    script_tmpl_file_abspath = task_mgr.subtask_template_path(task_idx, subtask_idx),
+    script_tmpl_file_abspath = task_mgr.subtask_template_path(task_idx, subtask_idx)
+    print(f"template: {script_tmpl_file_abspath}")
     script_writer.set_template_file(script_tmpl_file_abspath)
     # Add variables to replace
     for slrv_name in task_mgr.subtask_single_line_replace_variables(task_idx, subtask_idx):
@@ -59,7 +60,7 @@ def generate_run_script_file(run_script_fpath, task_mgr, task_idx, subtask_idx):
 
     # Output to file
     os.makedirs(os.path.dirname(run_script_fpath), exist_ok=True)
-    ys_writer.write(run_script_fpath)
+    script_writer.write(run_script_fpath)
 
     end_time = time.time()
     time_diff = timedelta(seconds=(end_time - start_time))
@@ -170,7 +171,7 @@ if __name__ == "__main__":
             # Bypass the task which is not selected
             if not t_sel.is_selected(job_name_str):
                 continue
-            if not task_mgr.subtask_enabled(task_id, stask_id):
+            if not task_mgr.subtask_enable(task_id, stask_id):
                 continue
             job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
             curr_rundir = task_mgr.subtask_workspace(task_id, stask_id)
@@ -178,7 +179,7 @@ if __name__ == "__main__":
             # generate run script
             curr_tool = task_mgr.subtask_tut(task_id, stask_id)
             curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tut_mgr.runtime_script(curr_tool))
-            num_error += generate_run_script(curr_run_script_fpath, task_mgr, task_id, stask_id)
+            num_errors += generate_run_script_file(curr_run_script_fpath, task_mgr, task_id, stask_id)
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # Config the tool, binary and args for the current job
             cust_args = {}

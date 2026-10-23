@@ -69,7 +69,7 @@ class EzRegTaskManager:
 
     def __valid_subtask(self, task_idx, subtask_idx):
         self.__valid_task(task_idx)
-        if subtask_idx not in self.__task_subtask_names_[task_idx]:
+        if subtask_idx not in range(len(self.__task_subtask_names_[task_idx])):
             raise Exception(f"Invalid subtask id {subtask_idx} under task '{self.task_name(task_idx)}'")
 
     def subtasks(self, task_idx):
@@ -211,10 +211,10 @@ class EzRegTaskManager:
             for subtask_name in subyaml_db:
                 self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_ENABLE_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
                 self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TUT_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TMP_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_PATH_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_MLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_SLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TMPL_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMPL_PATH_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMPL_MLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMPL_SLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
                 subtask_enable = subyaml_db[subtask_name][REG_SUBTASK_ENABLE_TAG]
                 subtask_tut = subyaml_db[subtask_name][REG_SUBTASK_TUT_TAG]
                 subtask_tmpl_path = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_PATH_TAG]
@@ -225,7 +225,7 @@ class EzRegTaskManager:
                 self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
                 curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]
                 self.__task_subtask_multi_line_replaced_variables_[itask].append(curr_mlrv)
-                curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]
+                curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_SLRV_TAG]
                 self.__task_subtask_single_line_replaced_variables_[itask].append(curr_slrv)
                 subtask_deps = []
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
@@ -234,12 +234,13 @@ class EzRegTaskManager:
                 expect_failure = False
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
                     expect_failure = subyaml_db[subtask_name][REG_SUBTASK_EXPECT_FAILURE_TAG]
-                self.__task_subtask_dependencies_[itask].append(expect_failure)
+                self.__task_subtask_expect_failures_[itask].append(expect_failure)
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):
-            if dep_name == self.__task_names_[itask]:
-                return True
+            for isubtask in range(len(self.__task_subtask_names_[itask][isubtask])):
+                if dep_name == self.__task_subtask_names_[itask][isubtask]:
+                    return True
         return False
 
     def load(self, fname):
@@ -249,15 +250,16 @@ class EzRegTaskManager:
             raise Exception("Invalid file format. Support only YAML and XML file")
         # Validate all the deps
         for itask in range(len(self.__task_names_)):
-            for dep_name in self.__task_dependencies_[itask]:
-                if dep_name == self.__task_names_[itask]:
-                    raise Exception(
-                        f"Task '{self.__task_names_[itask]}' cannot have a dependency on itself!\n"
-                    )
-                if not self.__valid_dep(dep_name):
-                    raise Exception(
-                        f"Dependency '{dep_name}' of task '{self.__task_names_[itask]}' is not a valid task name!\n"
-                    )
+            for isubtask in range(len(self.__task_subtask_names_[itask])):
+                for dep_name in self.__task_subtask_dependencies_[itask][isubtask]:
+                    if dep_name == self.__task_subtask_names_[itask][isubtask]:
+                        raise Exception(
+                            f"Task '{self.__task_names_[itask]}' cannot have a dependency on itself!\n"
+                        )
+                    if not self.__valid_dep(dep_name):
+                        raise Exception(
+                            f"Dependency '{dep_name}' of task '{self.__task_names_[itask]}' is not a valid task name!\n"
+                        )
 
         # TODO: May need a validator before flip the flag!
         self.__is_dirty_ = False
