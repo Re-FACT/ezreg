@@ -3,6 +3,7 @@ import logging
 
 ALL_TASK_SELECTED = "all"
 
+
 # Class of a task selection
 # Task selection accepts a string that defines a list of selected tasks, including designs and steps
 # The format is

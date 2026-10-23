@@ -12,6 +12,7 @@ import threading
 EZREG_RUNLOG_FNAME = "_ezreg_run.log"
 EZREG_NUM_CHAR_PER_LINE = 80  # Maximum space tuned for the screen width
 
+
 # Class of a regression test job run manager
 class EzRegJobManager:
     def __init__(self):
@@ -117,7 +118,14 @@ class EzRegJobManager:
 
             start_time_str = datetime.fromtimestamp(start_time).isoformat()
             time_logging_space = (
-                "." * (EZREG_NUM_CHAR_PER_LINE - len(job_name) - len(" start at") - len(start_time_str) - 2)
+                "."
+                * (
+                    EZREG_NUM_CHAR_PER_LINE
+                    - len(job_name)
+                    - len(" start at")
+                    - len(start_time_str)
+                    - 2
+                )
                 + " "
             )
             logging.info(job_name + " start at" + time_logging_space + start_time_str)
@@ -137,17 +145,12 @@ class EzRegJobManager:
             # Run tool under test
             log_fname = self.__job_logs_[job_idx]
             run_cmd = (
-                self.__job_tool_bins_[job_idx]
-                + self.__job_tool_args_[job_idx]
-                + " > "
-                + log_fname
+                self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx] + " > " + log_fname
             )
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
             if dryrun:
-                logging.info(
-                    f"User choose to perform dryrun\n User may run with \n\t{run_cmd}"
-                )
+                logging.info(f"User choose to perform dryrun\n User may run with \n\t{run_cmd}")
             else:
                 with open(log_fname, "w") as log_f:
                     make_process = subprocess.Popen(run_cmd, shell=True, stdout=log_f, stderr=log_f)

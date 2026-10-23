@@ -30,10 +30,12 @@ error_codes = {"SUCCESS": 0, "ERROR": 1, "FILE_ERROR": 2}
 #####################################################################
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 
+
 #####################################################################
 # Generate the runtime script
 def generate_run_script_fpath(fdir, fname):
     return os.path.join(os.path.abspath(fdir), fname)
+
 
 #####################################################################
 # Generate the runtime script based on a given template and task settings
@@ -70,6 +72,7 @@ def generate_run_script_file(run_script_fpath, task_mgr, task_idx, subtask_idx):
 
     return num_err
 
+
 ##################################################################
 # Main function
 ##################################################################
@@ -79,7 +82,9 @@ if __name__ == "__main__":
     # Parse the options and apply sanity checks
     parser = argparse.ArgumentParser(description="Run regression tests with a given task list ")
     parser.add_argument(
-        "--path_config", required=True, help="A yaml file contains a list of root paths to be used in task configuration file"
+        "--path_config",
+        required=True,
+        help="A yaml file contains a list of root paths to be used in task configuration file",
     )
     parser.add_argument(
         "--tut_config", required=True, help="A yaml file contains a list of tools under tests"
@@ -88,7 +93,9 @@ if __name__ == "__main__":
         "--task", required=True, help="A yaml file contains a list of tasks to test"
     )
     parser.add_argument(
-        "--root_dir", required=True, help="Root directory to apply on [ROOT_PATH] variable in all the configuraiton files"
+        "--root_dir",
+        required=True,
+        help="Root directory to apply on [ROOT_PATH] variable in all the configuraiton files",
     )
     parser.add_argument(
         "--task_select",
@@ -105,7 +112,10 @@ if __name__ == "__main__":
         "--j", type=int, default=2, help="Specify maximum number of jobs to be run in parallel"
     )
     parser.add_argument(
-        "--runtime_dirname", type=str, default="_ezreg_", help="Specify the prefix of the runtime directory to be created"
+        "--runtime_dirname",
+        type=str,
+        default="_ezreg_",
+        help="Specify the prefix of the runtime directory to be created",
     )
     parser.add_argument(
         "--dryrun",
@@ -137,9 +147,9 @@ if __name__ == "__main__":
     task_mgr = ezreg_task_manager.EzRegTaskManager()
     # load keywords
     for pvar in path_mgr.path_vars():
-      pvar_name = path_mgr.path_var_name(pvar)
-      pval = path_mgr.path_value(pvar)
-      task_mgr.add_replace_keyword(pvar_name, pval)
+        pvar_name = path_mgr.path_var_name(pvar)
+        pval = path_mgr.path_value(pvar)
+        task_mgr.add_replace_keyword(pvar_name, pval)
     # Now load from Yaml
     task_mgr.load(args.task)
 
@@ -178,12 +188,18 @@ if __name__ == "__main__":
             job_mgr.set_rundir(job_name, curr_rundir)
             # generate run script
             curr_tool = task_mgr.subtask_tut(task_id, stask_id)
-            curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tut_mgr.runtime_script(curr_tool))
-            num_errors += generate_run_script_file(curr_run_script_fpath, task_mgr, task_id, stask_id)
+            curr_run_script_fpath = generate_run_script_fpath(
+                curr_rundir, tut_mgr.runtime_script(curr_tool)
+            )
+            num_errors += generate_run_script_file(
+                curr_run_script_fpath, task_mgr, task_id, stask_id
+            )
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # Config the tool, binary and args for the current job
             cust_args = {}
-            cust_args[ezreg_tool_manager.TCL_KEYWORD] = [str(os.path.abspath(curr_run_script_fpath))]
+            cust_args[ezreg_tool_manager.TCL_KEYWORD] = [
+                str(os.path.abspath(curr_run_script_fpath))
+            ]
             curr_tool_bin = tut_mgr.binary_path(curr_tool)
             curr_tool_args = tut_mgr.tool_args(curr_tool, cust_args)
             # configure tool args to job mgr

@@ -6,6 +6,7 @@ import os
 # Keywords
 ROOT_PATH_KEYWORD = "[ROOT_PATH]"
 
+
 # Class of a path manager
 class EzRegPathManager:
     def __init__(self):

@@ -4,18 +4,19 @@ import re
 
 # Constants
 
+
 # Class of A general purpose script writer for tool under test
 class EzRegScriptWriter:
     def __init__(self):
         # constants
-        self.__mlrv_ = {} # Multiple line replaced variable, [var] = [val0, val1]
-        self.__slrv_ = {} # Single line replaced variable, [var] = val0
+        self.__mlrv_ = {}  # Multiple line replaced variable, [var] = [val0, val1]
+        self.__slrv_ = {}  # Single line replaced variable, [var] = val0
         # Internal data
         self.__template_file_ = ""
 
     def set_template_file(self, val):
         self.__template_file_ = val
-   
+
     def __var_to_match_pattern(self, var):
         return "${" + var + "}"
 
@@ -38,32 +39,32 @@ class EzRegScriptWriter:
             mpattern = self.__var_to_match_pattern(var)
             if mpattern in i_line:
                 return True
-        return False 
+        return False
 
     def __update_line_with_mlrv(self, i_line):
         """
-        Expands a line containing variables like ${varA}${varB} 
+        Expands a line containing variables like ${varA}${varB}
         using the Cartesian product of their respective lists.
         """
         # Find all unique variable placeholders in the line
-        placeholders = re.findall(r'\${(\w+)}', line)
+        placeholders = re.findall(r"\${(\w+)}", line)
         if not placeholders:
-            return [line] # Returns the line as-is, keeping \n
+            return [line]  # Returns the line as-is, keeping \n
 
         variables = self.__mlrv_
-        
+
         # Extract the lists corresponding to those placeholders
         lists_to_combine = [variables[p] for p in placeholders]
-        
+
         expanded_lines = []
         for combination in itertools.product(*lists_to_combine):
             current_line = line
             for placeholder, value in zip(placeholders, combination):
                 current_line = current_line.replace(f"${{{placeholder}}}", value)
-            # No .strip() or .rstrip() used here, 
+            # No .strip() or .rstrip() used here,
             # so leading padding and trailing \n are fully preserved.
             expanded_lines.append(current_line)
-            
+
         return expanded_lines
 
     # For an input line to rewrite:
