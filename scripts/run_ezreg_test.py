@@ -190,7 +190,7 @@ if __name__ == "__main__":
             # configure tool args to job mgr
             job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
             # Set job dependencies
-            for job_dep in task_mgr.subtask_dependencies(task_id, stask_id)):
+            for job_dep in task_mgr.subtask_dependencies(task_id, stask_id):
                 job_mgr.add_depenency(job_name, job_dep)
 
     # Run jobs

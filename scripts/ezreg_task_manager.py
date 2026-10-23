@@ -101,7 +101,7 @@ class EzRegTaskManager:
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
         raw_ret = self.__task_subtask_template_paths_[task_idx][subtask_idx]
-        return self.__replace_keyword(raw_ret):
+        return self.__replace_keyword(raw_ret)
 
     def subtask_single_line_replace_variables(self, task_idx, subtask_idx):
         self.__check_valid()
@@ -111,10 +111,10 @@ class EzRegTaskManager:
     def subtask_single_line_replace_value(self, task_idx, subtask_idx, var_name):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
-        if var_name not in self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx].keys()
+        if var_name not in self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx].keys():
             raise Exception(f"Variable '{var_name}' does not exist in the single-line-replace-variables of subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx, subtask_idx)}'")
         raw_ret = self.__task_subtask_single_line_replaced_variables_[task_idx][subtask_idx][var_name]
-        return self.__replace_keyword(raw_ret):
+        return self.__replace_keyword(raw_ret)
 
     def subtask_multi_line_replace_variables(self, task_idx, subtask_idx):
         self.__check_valid()
@@ -124,7 +124,7 @@ class EzRegTaskManager:
     def subtask_multi_line_replace_value(self, task_idx, subtask_idx, var_name):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
-        if var_name not in self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx].keys()
+        if var_name not in self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx].keys():
             raise Exception(f"Variable '{var_name}' does not exist in the multiple-line-replace-variables of subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx, subtask_idx)}'")
         raw_ret = self.__task_subtask_multi_line_replaced_variables_[task_idx][subtask_idx][var_name]
         final_ret = []
@@ -167,12 +167,12 @@ class EzRegTaskManager:
         self.__task_workspaces_ = []
         self.__task_dependencies_ = []
         # check required syntax
-        self.__check_required_yaml_syntax(yaml_db, REG_TASK_TAG, "as root node"):
+        self.__check_required_yaml_syntax(yaml_db, REG_TASK_TAG, "as root node")
         for itask in range(len(yaml_db[REG_TASK_TAG])):
-            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_NAME_TAG, f"under '{REG_TASK_TAG}' node {itask}"):
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_NAME_TAG, f"under '{REG_TASK_TAG}' node {itask}")
             task_name = yaml_db[REG_TASK_TAG][itask][REG_TASK_NAME_TAG]
-            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_WORKSPACE_TAG, f"under task '{task_name}'"):
-            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_SUBTASKS_TAG, f"under task '{task_name}'"):
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_WORKSPACE_TAG, f"under task '{task_name}'")
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_SUBTASKS_TAG, f"under task '{task_name}'")
             task_wkspace = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_WORKSPACE_TAG])
             task_subtask_config = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG])
             if REG_TASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
@@ -199,12 +199,12 @@ class EzRegTaskManager:
                 except yaml.YAMLError as exc:
                     logging.error(exc)
             for subtask_name in subyaml_db:
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_ENABLE_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TUT_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TMP_TAG, f"under subtask '{subtask_name}' of task '{task_name}'"):
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_PATH_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_MLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
-                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_SLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'"):
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_ENABLE_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TUT_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name], REG_SUBTASK_TMP_TAG, f"under subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_PATH_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_MLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
+                self.__check_required_yaml_syntax(subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG], REG_SUBTASK_TMP_SLRV_TAG, f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'")
                 subtask_enable = subyaml_db[subtask_name][REG_SUBTASK_ENABLE_TAG]
                 subtask_tut = subyaml_db[subtask_name][REG_SUBTASK_TUT_TAG]
                 subtask_tmpl_path = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_PATH_TAG]
@@ -213,9 +213,9 @@ class EzRegTaskManager:
                 self.__task_subtask_enable_[itask].append(subtask_name)
                 self.__task_subtask_tut_[itask].append(subtask_tut)
                 self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
-                curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
+                curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]
                 self.__task_subtask_multi_line_replaced_variables_[itask].append(curr_mlrv)
-                curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
+                curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]
                 self.__task_subtask_single_line_replaced_variables_[itask].append(curr_slrv)
                 subtask_deps = []
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:

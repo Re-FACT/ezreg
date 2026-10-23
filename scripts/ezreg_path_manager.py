@@ -19,7 +19,7 @@ class EzRegPathManager:
 
     def path_vars(self):
         self.__check_valid()
-        return self.__db_.keys():
+        return self.__db_.keys()
 
     def list_path_vars(self):
         self.__check_valid()
