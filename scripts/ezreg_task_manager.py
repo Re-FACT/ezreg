@@ -161,7 +161,7 @@ class EzRegTaskManager:
         return not (self.__is_dirty_)
 
     def __check_required_yaml_syntax(self, parent_node, req_node_name, loc_msg):
-        if req_node not in parent_node:
+        if req_node_name not in parent_node:
             raise Exception(f"Require syntax '{TASK_TAG}' is missing {loc_msg}\n")
 
     # Load data from yaml file
@@ -181,15 +181,15 @@ class EzRegTaskManager:
         for itask in range(len(yaml_db[REG_TASK_TAG])):
             self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_NAME_TAG, f"under '{REG_TASK_TAG}' node {itask}")
             task_name = yaml_db[REG_TASK_TAG][itask][REG_TASK_NAME_TAG]
-            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_WORKSPACE_TAG, f"under task '{task_name}'")
-            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_SUBTASKS_TAG, f"under task '{task_name}'")
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_WORKSPACE_TAG, f"under task '{task_name}'")
+            self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_SUBTASKS_TAG, f"under task '{task_name}'")
             task_wkspace = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_WORKSPACE_TAG])
             task_subtask_config = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG])
-            if REG_TASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
-                task_deps = yaml_db[REG_TASK_TAG][itask][REG_TASK_DEP_TAG]
+            if REG_SUBTASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
+                task_deps = yaml_db[REG_TASK_TAG][itask][REG_SUBTASK_DEP_TAG]
             task_expect_failure = False
-            if REG_TASK_EXPECT_FAILURE_TAG in yaml_db[REG_TASK_TAG][itask]:
-                task_expect_failure = yaml_db[REG_TASK_TAG][itask][REG_TASK_EXPECT_FAILURE_TAG]
+            if REG_SUBTASK_EXPECT_FAILURE_TAG in yaml_db[REG_TASK_TAG][itask]:
+                task_expect_failure = yaml_db[REG_TASK_TAG][itask][REG_SUBTASK_EXPECT_FAILURE_TAG]
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
             self.__task_subtask_configs_.append(task_subtask_config)

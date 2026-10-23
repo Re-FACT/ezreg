@@ -124,7 +124,7 @@ if __name__ == "__main__":
     tut_mgr = ezreg_tool_manager.EzRegToolManager()
     tut_mgr.load(args.tut_config)
     # Early exit condition: when no test case is listed
-    if tool_mgr.empty():
+    if tut_mgr.empty():
         logging.info("No tool under test found. Exiting...")
         exit(error_codes["ERROR"])
     # Read common settings on paths
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     for pvar in path_mgr.path_vars():
       pvar_name = path_mgr.path_var_name(pvar)
       pval = path_mgr.path_value(pvar)
-      task_mgr.add_replace_word(pvar_name, pval)
+      task_mgr.add_replace_keyword(pvar_name, pval)
     # Now load from Yaml
     task_mgr.load(args.task)
 
@@ -177,14 +177,14 @@ if __name__ == "__main__":
             job_mgr.set_rundir(job_name, curr_rundir)
             # generate run script
             curr_tool = task_mgr.subtask_tut(task_id, stask_id)
-            curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tool_mgr.runtime_script(curr_tool))
+            curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tut_mgr.runtime_script(curr_tool))
             num_error += generate_run_script(curr_run_script_fpath, task_mgr, task_id, stask_id)
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # Config the tool, binary and args for the current job
             cust_args = {}
             cust_args[ezreg_tool_manager.TCL_KEYWORD] = [str(os.path.abspath(curr_run_script_fpath))]
-            curr_tool_bin = tool_mgr.binary_path(curr_tool)
-            curr_tool_args = tool_mgr.tool_args(curr_tool, cust_args)
+            curr_tool_bin = tut_mgr.binary_path(curr_tool)
+            curr_tool_args = tut_mgr.tool_args(curr_tool, cust_args)
             # configure tool args to job mgr
             job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
             # Set job dependencies
