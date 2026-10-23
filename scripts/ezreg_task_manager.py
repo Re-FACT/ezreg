@@ -56,7 +56,9 @@ class EzRegTaskManager:
 
     def __replace_keyword(self, in_str, task_idx, subtask_idx):
         tmp_str = in_str
-        tmp_str = tmp_str.replace(self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx))
+        tmp_str = tmp_str.replace(
+            self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx)
+        )
         for kw in self.__replace_keywords_.keys():
             tmp_str = tmp_str.replace(kw, self.__replace_keywords_[kw])
         return tmp_str
