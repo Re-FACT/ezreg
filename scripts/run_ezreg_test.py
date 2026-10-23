@@ -13,6 +13,8 @@ import time
 from datetime import timedelta
 import datetime
 import threading
+import ezreg_tool_manager
+import ezreg_path_manager
 import ezreg_task_manager
 import ezreg_job_manager
 import ezreg_task_selection
@@ -46,6 +48,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--task", required=True, help="A yaml file contains a list of tasks to test"
+    )
+    parser.add_argument(
+        "--root_dir", required=True, help="Root directory to apply on [ROOT_PATH] variable in all the configuraiton files"
     )
     parser.add_argument(
         "--task_select",
@@ -87,10 +92,17 @@ if __name__ == "__main__":
         exit(error_codes["ERROR"])
     # Read common settings on paths
     path_mgr = ezreg_path_manager.EzRegPathManager()
+    path_mgr.set_root_dir(args.root_dir)
     path_mgr.load(args.path_config)
 
     # Read task configuration
     task_mgr = ezreg_task_manager.EzRegTaskManager()
+    # load keywords
+    for pvar in path_mgr.path_vars():
+      pvar_name = path_mgr.path_var_name(pvar)
+      pval = path_mgr.path_value(pvar)
+      task_mgr.add_replace_word(pvar_name, pval)
+    # Now load from Yaml
     task_mgr.load(args.task)
 
     # Early exit condition: when no test case is listed
@@ -111,19 +123,23 @@ if __name__ == "__main__":
     job_mgr = ezreg_job_manager.EzRegJobManager()
     # Add jobs one by one
     for task_id in task_mgr.tasks():
-        job_name = task_mgr.task_name(task_id)
+        task_name = task_mgr.task_name(task_id)
         # Bypass the task which is not selected
-        if not t_sel.is_selected(job_name):
+        if not t_sel.is_selected(task_name):
             continue
-        job_mgr.create_job(job_name, task_mgr.task_command(task_id), task_mgr.task_expect_failure(task_id))
-        job_mgr.set_rundir(job_name, task_mgr.task_workspace(task_id))
-        # For dependent jobs which are not selected, do not add it to dep list
-        # This is to avoid any unexisting blocker to the job run
-        actual_job_deps = []
-        for task_dep in task_mgr.task_deps(task_id):
-            if t_sel.is_selected(task_dep):
-                actual_job_deps.append(task_dep)
-        job_mgr.set_job_deps(job_name, actual_job_deps)
+        # Walk through subtasks
+        for stask_id in task_mgr.subtasks(task_id):
+            if not task_mgr.subtask_enabled(task_id, stask_id):
+                continue
+            stask_name = task_mgr.subtask_name(task_id, stask_id)
+            job_name_str = ".".join([task_name, stask_name])
+            job_name = "_".join([task_name, stask_name])
+            job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
+            job_mgr.set_rundir(job_name, task_mgr.subtask_workspace(task_id, stask_id))
+            # TODO: generate run script and add to job_mgr
+            # TODO: configure tool args to job mgr
+            for job_dep in task_mgr.subtask_dependencies(task_id, stask_id)):
+                job_mgr.add_depenency(job_name, job_dep)
 
     # Run jobs
     job_mgr.run_all(args.j, args.dryrun, True)

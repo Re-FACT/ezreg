@@ -4,7 +4,7 @@ import os
 
 # Constants
 # Keywords
-ROOT_PATH_KEYWORD = "[ROORT_PATH]"
+ROOT_PATH_KEYWORD = "[ROOT_PATH]"
 
 # Class of a path manager
 class EzRegPathManager:
@@ -16,6 +16,10 @@ class EzRegPathManager:
 
     def set_root_dir(self, val):
         self.__root_dir_ = val
+
+    def path_vars(self):
+        self.__check_valid()
+        return self.__db_.keys():
 
     def list_path_vars(self):
         self.__check_valid()

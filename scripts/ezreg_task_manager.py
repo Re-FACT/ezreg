@@ -2,20 +2,21 @@ import logging
 import yaml
 import os
 from xml.dom import minidom
+from pathlib import Path
 
 # Constants
 REG_TASK_TAG = "reg_tasks"
 REG_TASK_NAME_TAG = "name"
 REG_TASK_WORKSPACE_TAG = "workspace"
 REG_TASK_SUBTASKS_TAG = "subtasks"
-REG_TASK_DEP_TAG = "depend"
-REG_TASK_EXPECT_FAILURE_TAG = "expect_failure"
 REG_SUBTASK_ENABLE_TAG = "enable"
 REG_SUBTASK_TUT_TAG = "tool_under_test"
 REG_SUBTASK_TMPL_TAG = "template"
 REG_SUBTASK_TMPL_PATH_TAG = "path"
 REG_SUBTASK_TMPL_MLRV_TAG = "multiple_line_replaced_variables"
 REG_SUBTASK_TMPL_SLRV_TAG = "single_line_replaced_variables"
+REG_SUBTASK_DEP_TAG = "depend"
+REG_SUBTASK_EXPECT_FAILURE_TAG = "expect_failure"
 
 class EzRegTaskManager:
     def __init__(self):
@@ -23,8 +24,6 @@ class EzRegTaskManager:
         self.__task_names_ = []
         self.__task_workspaces_ = []
         self.__task_subtask_configs_ = [] # file of subtasks
-        self.__task_dependencies_ = []
-        self.__task_expect_failures_ = []
         # Subtasks
         self.__task_subtask_names_ = [] # [itask][isubtask] = str
         self.__task_subtask_enable_ = []# [itask][isubtask] = bool
@@ -32,6 +31,8 @@ class EzRegTaskManager:
         self.__task_subtask_template_paths_ = []# [itask][isubtask] = str
         self.__task_subtask_multi_line_replaced_variables_ = [] # [itask][isubtask][var_name] = [str0, str1 ... ]
         self.__task_subtask_single_line_replaced_variables_ = [] # [itask][isubtask][var_name] = str
+        self.__task_subtask_dependencies_ = [] # [itask][isubtask] = [str0, str1 ... ]
+        self.__task_subtask_expect_failures_ = [] # [itask][isubtask] = bool
         self.__is_dirty_ = True  # By default it should be dirty. After loading data and pass sanity checks, it will be flipped to clean
         self.__EXPECT_FAILURE_STRING_ = {"true": True, "false": False}
         # Replace keywords
@@ -66,30 +67,45 @@ class EzRegTaskManager:
         if task_idx not in self.tasks():
             raise Exception(f"Invalid task id {task_idx}")
 
+    def __valid_subtask(self, task_idx, subtask_idx):
+        self.__valid_task(task_idx)
+        if subtask_idx not in self.__task_subtask_names_[task_idx]:
+            raise Exception(f"Invalid subtask id {subtask_idx} under task '{self.task_name(task_idx)}'")
+
+    def subtasks(self, task_idx):
+        self.__check_valid()
+        self.__valid_task(task_idx)
+        return range(len(self.__task_subtask_names_[task_idx]))
+
     def task_name(self, task_idx):
         self.__check_valid()
         self.__valid_task(task_idx)
         return self.__task_names_[task_idx]
 
-    def task_workspace(self, task_idx):
+    def subtask_name(self, task_idx, subtask_idx):
         self.__check_valid()
-        self.__valid_task(task_idx)
-        return self.__task_workspaces_[task_idx]
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_names_[task_idx][subtask_idx]
 
-    def task_command(self, task_idx):
+    def subtask_enable(self, task_idx, subtask_idx):
         self.__check_valid()
-        self.__valid_task(task_idx)
-        return self.__task_commands_[task_idx]
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_enable_[task_idx][subtask_idx]
 
-    def task_dependency(self, task_idx):
+    def subtask_expect_failure(self, task_idx, subtask_idx):
         self.__check_valid()
-        self.__valid_task(task_idx)
-        return self.__task_dependencies_[task_idx]
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_expect_failures_[task_idx][subtask_idx]
 
-    def task_expect_failure(self, task_idx):
+    def subtask_workspace(self, task_idx, subtask_idx):
         self.__check_valid()
-        self.__valid_task(task_idx)
-        return self.__task_expect_failures_[task_idx]
+        self.__valid_subtask(task_idx, subtask_idx)
+        return Path(self.__task_workspaces_[task_idx]) / Path(self.subtask_name(task_idx, subtask_idx)) 
+
+    def subtask_dependencies(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return self.__task_subtask_dependencies_[task_idx][subtask_idx]
 
     def is_valid(self):
         return not (self.__is_dirty_)
@@ -119,7 +135,6 @@ class EzRegTaskManager:
             self.__check_required_yaml_syntax(yaml_db[REG_TASK_TAG][itask], REG_TASK_TASK_SUBTASKS_TAG, f"under task '{task_name}'"):
             task_wkspace = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_WORKSPACE_TAG])
             task_subtask_config = self.__replace_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG])
-            task_deps = []
             if REG_TASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
                 task_deps = yaml_db[REG_TASK_TAG][itask][REG_TASK_DEP_TAG]
             task_expect_failure = False
@@ -128,14 +143,14 @@ class EzRegTaskManager:
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
             self.__task_subtask_configs_.append(task_subtask_config)
-            self.__task_dependencies_.append(task_deps)
-            self.__task_expect_failures_.append(task_expect_failure)
             self.__task_subtask_names_.append([])
             self.__task_subtask_enable_.append([])
             self.__task_subtask_tut_.append([])
             self.__task_subtask_template_paths_.append([])
             self.__task_subtask_multi_line_replaced_variables_.append([])
             self.__task_subtask_single_line_replaced_variables_.append([])
+            self.__task_subtask_dependencies_.append([])
+            self.__task_subtask_expect_failures_.append([])
             # Parse subtasks
             subyaml_db = {}
             with open(task_subtask_config, "r") as substream:
@@ -159,9 +174,17 @@ class EzRegTaskManager:
                 self.__task_subtask_tut_[itask].append(subtask_tut)
                 self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
                 curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
-                self.__task_subtask_multi_line_replaced_variables_.append(curr_mlrv)
+                self.__task_subtask_multi_line_replaced_variables_[itask].append(curr_mlrv)
                 curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
-                self.__task_subtask_single_line_replaced_variables_.append(curr_slrv)
+                self.__task_subtask_single_line_replaced_variables_[itask].append(curr_slrv)
+                subtask_deps = []
+                if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
+                    subtask_deps = subyaml_db[subtask_name][REG_SUBTASK_DEP_TAG]
+                self.__task_subtask_dependencies_[itask].append(subtask_deps)
+                expect_failure = False
+                if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
+                    expect_failure = subyaml_db[subtask_name][REG_SUBTASK_EXPECT_FAILURE_TAG]
+                self.__task_subtask_dependencies_[itask].append(expect_failure)
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):
