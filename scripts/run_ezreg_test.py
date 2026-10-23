@@ -79,14 +79,15 @@ if __name__ == "__main__":
     num_errors = 0
 
     # Read tool configuration
-    tool_mgr = ezreg_tool_manager.EzRegToolManager()
-    tool_mgr.load(args.tool_config)
+    tut_mgr = ezreg_tool_manager.EzRegToolManager()
+    tut_mgr.load(args.tut_config)
     # Early exit condition: when no test case is listed
     if tool_mgr.empty():
         logging.info("No tool under test found. Exiting...")
         exit(error_codes["ERROR"])
     # Read common settings on paths
     path_mgr = ezreg_path_manager.EzRegPathManager()
+    path_mgr.load(args.path_config)
 
     # Read task configuration
     task_mgr = ezreg_task_manager.EzRegTaskManager()

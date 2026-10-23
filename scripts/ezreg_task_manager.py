@@ -7,21 +7,45 @@ from xml.dom import minidom
 REG_TASK_TAG = "reg_tasks"
 REG_TASK_NAME_TAG = "name"
 REG_TASK_WORKSPACE_TAG = "workspace"
-REG_TASK_CMD_TAG = "command"
+REG_TASK_SUBTASKS_TAG = "subtasks"
 REG_TASK_DEP_TAG = "depend"
 REG_TASK_EXPECT_FAILURE_TAG = "expect_failure"
+REG_SUBTASK_ENABLE_TAG = "enable"
+REG_SUBTASK_TUT_TAG = "tool_under_test"
+REG_SUBTASK_TMPL_TAG = "template"
+REG_SUBTASK_TMPL_PATH_TAG = "path"
+REG_SUBTASK_TMPL_MLRV_TAG = "multiple_line_replaced_variables"
+REG_SUBTASK_TMPL_SLRV_TAG = "single_line_replaced_variables"
 
 class EzRegTaskManager:
     def __init__(self):
         # Internal data
         self.__task_names_ = []
         self.__task_workspaces_ = []
-        self.__task_commands_ = []
+        self.__task_subtask_configs_ = [] # file of subtasks
         self.__task_dependencies_ = []
         self.__task_expect_failures_ = []
+        # Subtasks
+        self.__task_subtask_names_ = [] # [itask][isubtask] = str
+        self.__task_subtask_enable_ = []# [itask][isubtask] = bool
+        self.__task_subtask_tut_ = []# [itask][isubtask] = str
+        self.__task_subtask_template_paths_ = []# [itask][isubtask] = str
+        self.__task_subtask_multi_line_replaced_variables_ = [] # [itask][isubtask][var_name] = [str0, str1 ... ]
+        self.__task_subtask_single_line_replaced_variables_ = [] # [itask][isubtask][var_name] = str
         self.__is_dirty_ = True  # By default it should be dirty. After loading data and pass sanity checks, it will be flipped to clean
         self.__EXPECT_FAILURE_STRING_ = {"true": True, "false": False}
+        # Replace keywords
+        self.__replace_keywords_ = {}
 
+    def add_replace_keyword(self, kw, val):
+        self.__replace_keywords_[kw] = val
+
+    def __replace_keyword(self, in_str):
+        tmp_str = in_str
+        for kw in self.__replace_keywords_.keys():
+            tmp_str = tmp_str.replace(kw, self.__replace_keywords_[kw])
+        return tmp_str
+ 
     def empty(self):
         return len(self.__task_names_) == 0
 
@@ -70,6 +94,10 @@ class EzRegTaskManager:
     def is_valid(self):
         return not (self.__is_dirty_)
 
+    def __check_required_yaml_syntax(self, parent_node, req_node_name, curr_node_name):
+        if req_node not in parent_node:
+            raise Exception(f"Require syntax '{TASK_TAG}' is missing under the node '{curr_node_name}'\n")
+
     # Load data from yaml file
     def __load_from_yaml(self, yaml_filename):
         yaml_db = {}
@@ -82,10 +110,15 @@ class EzRegTaskManager:
         self.__task_names_ = []
         self.__task_workspaces_ = []
         self.__task_dependencies_ = []
+        # check required syntax
+        self.__check_required_yaml_syntax(yaml_db, TASK_TAG, "root"):
         for itask in range(len(yaml_db[TASK_TAG])):
+            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_TAG):
+            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_WORKSPACE_TAG):
+            self.__check_required_yaml_syntax(yaml_db[TASK_TAG][itask], TASK_NAME_TAG, TASK_SUBTASKS_TAG):
             task_name = yaml_db[TASK_TAG][itask][TASK_NAME_TAG]
-            task_wkspace = yaml_db[TASK_TAG][itask][TASK_WORKSPACE_TAG]
-            task_cmd = yaml_db[TASK_TAG][itask][TASK_CMD_TAG]
+            task_wkspace = self.__replace_keyword(yaml_db[TASK_TAG][itask][TASK_WORKSPACE_TAG])
+            task_subtask_config = self.__replace_keyword(yaml_db[TASK_TAG][itask][TASK_SUBTASKS_TAG])
             task_deps = []
             if TASK_DEP_TAG in yaml_db[TASK_TAG][itask]:
                 task_deps = yaml_db[TASK_TAG][itask][TASK_DEP_TAG]
@@ -94,9 +127,35 @@ class EzRegTaskManager:
                 task_expect_failure = yaml_db[TASK_TAG][itask][TASK_EXPECT_FAILURE_TAG]
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
-            self.__task_commands_.append(task_cmd)
+            self.__task_subtask_configs_.append(task_subtask_config)
             self.__task_dependencies_.append(task_deps)
             self.__task_expect_failures_.append(task_expect_failure)
+            self.__task_subtask_names_.append([])
+            self.__task_subtask_enable_.append([])
+            self.__task_subtask_tut_.append([])
+            self.__task_subtask_template_paths_.append([])
+            self.__task_subtask_multi_line_replaced_variables_.append([])
+            self.__task_subtask_single_line_replaced_variables_.append([])
+            # Parse subtasks
+            subyaml_db = {}
+            with open(task_subtask_config, "r") as substream:
+                try:
+                    subyaml_db = yaml.load(substream, Loader=yaml.FullLoader)
+                except yaml.YAMLError as exc:
+                    logging.error(exc)
+            for subtask_name in subyaml_db:
+                subtask_enable = subyaml_db[subtask_name][REG_SUBTASK_ENABLE_TAG]
+                subtask_tut = subyaml_db[subtask_name][REG_SUBTASK_TUT_TAG]
+                subtask_tmpl_path = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_PATH_TAG]
+                # Fill data
+                self.__task_subtask_names_[itask].append(subtask_name)
+                self.__task_subtask_enable_[itask].append(subtask_name)
+                self.__task_subtask_tut_[itask].append(subtask_tut)
+                self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
+                curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
+                self.__task_subtask_multi_line_replaced_variables_.append(curr_mlrv)
+                curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][REG_SUBTASK_TMPL_MLRV_TAG]:
+                self.__task_subtask_single_line_replaced_variables_.append(curr_slrv)
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):

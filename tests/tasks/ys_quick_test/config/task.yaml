@@ -14,7 +14,7 @@ and2x2:
         - "[BENCHMARK_ROOT_PATH]/and2x2/and2.v"
         - "[BENCHMARK_ROOT_PATH]/and2x2/and2x2.v"
     # For single line replaced variables, each match will only modify the line matched
-    single_replaced_variables: 
+    single_line_replaced_variables: 
       design_output: "and2_post_synth.v"
       top_module: "[current_design]"
       
