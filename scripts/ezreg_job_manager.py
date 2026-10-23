@@ -18,7 +18,10 @@ class EzRegJobManager:
         # Internal data
         self.__new_thread_wait_time_ = 1  # [sec.] Give a wait time before starting the next thread. Avoid any conflicts in switching directories
         self.__job_names_ = []
-        self.__job_commands_ = []
+        self.__job_tool_names_ = []
+        self.__job_tool_bins_ = []
+        self.__job_tool_args_ = []
+        self.__job_run_scripts_ = []
         self.__job_deps_ = []
         self.__job_status_data_ = []
         self.__job_rundirs_ = []
@@ -31,14 +34,19 @@ class EzRegJobManager:
         self.__TASK_STATUS_FAIL__ = "fail"
 
     # Create a new job
-    def create_job(self, job_name, job_cmd, exp_f):
+    def create_job(self, job_name, exp_f):
         if job_name in self.__job_names_:
             raise Exception(
                 "Duplicated job names: another job has already been created under the same name!"
             )
         self.__job_names_.append(job_name)
-        self.__job_commands_.append(job_cmd)
         self.__job_deps_.append([])
+        # Give a default empty script
+        self.__job_tool_names_.append("")
+        self.__job_tool_bins_.append("")
+        self.__job_tool_args_.append("")
+        self.__job_run_scripts_.append("")
+        # TODO: may load a name for job log file
         job_log_fpath = job_name + EZREG_RUNLOG_FNAME
         self.__job_logs_.append(job_log_fpath)
         self.__job_rundirs_.append("")
@@ -46,6 +54,26 @@ class EzRegJobManager:
         self.__job_expect_failures_.append(exp_f)
         # Clear error count
         self.__error_counts_.append(0)
+
+    # Set the tcl script to run the DC job
+    def set_job_run_script(self, job_name, val):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
+        self.__job_run_scripts_[job_idx] = val
+
+    def set_tool(self, job_name, tool_name, tool_bin, tool_args):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
+        # Should have a valid name
+        if tool_name not in self.__SUPPORTED_TOOLS_:
+            raise Exception(
+                f"Invalid tool name '{tool_name}'. Expect one of the following: {self.__SUPPORTED_TOOLS_}"
+            )
+        self.__job_tool_names_[job_idx] = tool_name
+        self.__job_tool_bins_[job_idx] = tool_bin
+        self.__job_tool_args_[job_idx] = tool_args
 
     # Get the runtime directory for a given job
     def rundir(self, job_name):
@@ -102,19 +130,24 @@ class EzRegJobManager:
             job_status[job_name] = 0
 
             # Check if the tcl script is valid
-            if not os.path.isfile(self.__task_scripts_[job_idx]):
+            if not os.path.isfile(self.__job_run_scripts_[job_idx]):
                 raise Exception(
-                    f"Task script '{self.__task_scripts_[job_idx]}' is not a valid file"
+                    f"Task script '{self.__job_run_scripts_[job_idx]}' is not a valid file"
                 )
             # Change to the runtime directory
             runtime_dir = os.path.abspath(self.__job_rundirs_[job_idx])
             os.makedirs(runtime_dir, exist_ok=True)
             os.chdir(runtime_dir)
             logging.debug(f"Changed to directory: {runtime_dir}")
-            # Run DC
-            run_cmd = self.__job_commands_[job_idx] 
-            logging.debug("Run job with the following command:\n\t" + run_cmd)
+            # Run tool under test
             log_fname = self.__job_logs_[job_idx]
+            run_cmd = (
+                self.__job_tool_bins_[job_idx]
+                + self.__job_tool_args_[job_idx]
+                + " > "
+                + log_fname
+            )
+            logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
             if dryrun:
                 logging.info(

@@ -181,6 +181,7 @@ if __name__ == "__main__":
             curr_tool = task_mgr.subtask_tut(task_id, stask_id)
             curr_run_script_fpath = generate_run_script_fpath(curr_rundir, tool_mgr.runtime_script(curr_tool))
             num_error += generate_run_script(curr_run_script_fpath, task_mgr, task_id, stask_id)
+            job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # Config the tool, binary and args for the current job
             cust_args = {}
             cust_args[ezreg_tool_manager.TCL_KEYWORD] = [str(os.path.abspath(curr_run_script_fpath))]
