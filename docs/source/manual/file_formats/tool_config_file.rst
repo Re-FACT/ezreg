@@ -44,14 +44,15 @@ Positional arguments should be defined under ``pargs``. A list of arguments can 
 
 .. code-block::
 
-  # The [RUNTIME_SCRIPT] will be replaced with an auto-generated tcl file
+  # The [runtime_script] will be replaced with an auto-generated tcl file
   # When calling yosys, the command line options will be 
-  #   /usr/bin/yosys/yosys -s [RUNTIME_SCRIPT] 
+  #   /usr/bin/yosys/yosys -s local_run.ys
   yosys:
     bin: /usr/bin/yosys/yosys
+  runtime_script: "local_run.ys"
   options: "kargs"
   kargs:
-    - name: "-s [RUNTIME_SCRIPT]"
+    - name: "-s [runtime_script]"
 
 Keyword Arguments
 -----------------
@@ -64,14 +65,15 @@ Keyword arguments should be defined under ``kargs``. A list of arguments can be 
 
 .. code-block::
 
-  # The [RUNTIME_SCRIPT] will be replaced with an auto-generated tcl file
+  # The [runtime_script] will be replaced with an auto-generated tcl file
   # When calling yosys, the command line options will be 
-  #   /usr/bin/yosys/yosys [RUNTIME_SCRIPT] --log ys.log
+  #   /usr/bin/yosys/yosys local_run.ys --log ys.log
   yosys:
     bin: /usr/bin/yosys/yosys
+  runtime_script: "local_run.ys"
   options: "pargs kargs"
   pargs:
-    - name: "[RUNTIME_SCRIPT]"
+    - name: "[runtime_script]"
   kargs:
     - name: "--log ys.log"
 

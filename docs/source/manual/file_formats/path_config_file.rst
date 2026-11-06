@@ -24,4 +24,3 @@ Reserved words
 
 - ``[ROOT_PATH]`` is defined by the command-line option ``--root_dir`` (See details in :ref:`user_interface`)
 - ``[SUBTASK_ROOT]`` is defined by the absolute location to the sub-task file
-- ``[RUNTIME_SCRIPT]`` is defined by the absolute location to the runtime script which is auto generated (See details in :ref:`file_format_tool_config_file`)

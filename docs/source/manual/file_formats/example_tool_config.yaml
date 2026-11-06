@@ -5,13 +5,13 @@
 # Take the example below, the 'gds_dummy' task will invoke a tool run through the following command line:
 #   yosys run.tcl -l run.log
 # Where in the task configuration file,
-#   - the '[RUNTIME_SCRIPT]' is defined through the syntax 'runtime_script' 
+#   - the '[runtime_script]' is defined through the syntax 'runtime_script' 
 yosys:
   bin: yosys
   runtime_script: run.ys
   options: "kargs"
 #  options: "pargs kargs"
 #  pargs:
-#    - name: "[RUNTIME_SCRIPT]"
+#    - name: "[runtime_script]"
   kargs:
-    - name: "-s [RUNTIME_SCRIPT]"
+    - name: "-s [runtime_script]"
