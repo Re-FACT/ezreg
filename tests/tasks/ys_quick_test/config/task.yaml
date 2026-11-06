@@ -20,8 +20,8 @@ and2x2:
   # Requirements to pass the test:
   # - no errors
   # - Quality-of-Result metrics in bound
-  #   file: Specify the file to check 
-  #   type: the parser to run and extract errors if any
+  #   file: Specify the file to check. Assume the files are generated at the runtime workspace 
+  #   type: the parser to run and extract metrics (including erros) from the metric file
   #   metric: the YAML file contains detailed metrics by name, upper/lower bound to check QoR. 
   pass_requirements:
     - file: run.log
