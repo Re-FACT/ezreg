@@ -66,7 +66,7 @@ Reserved words
 --------------
 
 Variables can be defined from the path configuration file.
-For example, the variable ``[TASK_ROOT]`` is defined in the path configuraiton file
+For example, the variable ``[TASK_ROOT]`` is defined in the path configuration file
 
 .. code-block::
 
