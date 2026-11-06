@@ -44,6 +44,7 @@ class EzRegTaskManager:
         self.__replace_keywords_ = {}
         # Reserved keywords
         self.__KEYWORD_CURRENT_DESIGN_ = "[current_design]"
+        self.__KEYWORD_CURRENT_SUBTASK_ROOT_ = "[current_subtask_root]"
 
     def add_replace_keyword(self, kw, val):
         self.__replace_keywords_[kw] = val
@@ -56,6 +57,10 @@ class EzRegTaskManager:
 
     def __replace_keyword(self, in_str, task_idx, subtask_idx):
         tmp_str = in_str
+        curr_subtask_dir = Path(self.__task_subtask_configs_[task_idx][subtask_idx]).parent
+        tmp_str = tmp_str.replace(
+            self.__KEYWORD_CURRENT_SUBTASK_ROOT_, curr_subtask_dir
+        )
         tmp_str = tmp_str.replace(
             self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx)
         )

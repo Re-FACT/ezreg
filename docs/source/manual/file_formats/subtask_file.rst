@@ -75,3 +75,4 @@ For example, the variable ``[TASK_ROOT]`` is defined in the path configuraiton f
 Name patterns can be used in the synthesis tasks. The following reserved word is supported
 
 - ``[current_design]``: Once defined, the content will be replaced by the design name that is specified in the subtask name
+- ``[current_subtask_root]``: Once defined, the content will be replaced by the absolute path to the parent directory of the current subtask configuration file
