@@ -114,7 +114,7 @@ class EzRegReportManager:
                 curr_row.append(task_name)
                 task_idx = self.__report_names_.index(task_name)
                 for curr_metric in self.__metrics_:
-                    if curr_metric == DESIGN_NAME_TAG:
+                    if curr_metric == TASK_NAME_TAG:
                         continue
                     if curr_metric not in self.__report_stats_[task_idx]:
                         curr_row.append("0")

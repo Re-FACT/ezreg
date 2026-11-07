@@ -127,6 +127,11 @@ class EzRegTaskManager:
         self.__valid_task(task_idx)
         return self.__task_names_[task_idx]
 
+    def task_golden_result_file(self, task_idx):
+        self.__check_valid()
+        self.__valid_task(task_idx)
+        return self.__task_golden_results_[task_idx]
+
     def subtask_job_name_str(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)

@@ -259,9 +259,9 @@ if __name__ == "__main__":
         # Get the golden reference
         for task_id in task_mgr.tasks():
             # Each task has a dedicated file for golden stats
+            golden_csv = task_mgr.task_golden_result_file(task_id)
             for stask_id in task_mgr.subtasks(task_id):
                 job_name_str = task_mgr.subtask_job_name_str(task_id, stask_id)
-                golden_csv = task_mgr.subtask_golden_result_file(task_id, stask_id)
                 num_diff += rpt_mgr.diff_stat(job_name_str, golden_csv)
         if num_diff == 0:
             logging.info(f"QoR check passed")
@@ -272,11 +272,9 @@ if __name__ == "__main__":
         # Get the golden reference
         for task_id in task_mgr.tasks():
             # Each task has a dedicated file for golden stats
-            for stask_id in task_mgr.subtasks(task_id):
-                job_name_str = task_mgr.subtask_job_name_str(task_id, stask_id)
-                golden_csv = task_mgr.subtask_golden_result_file(task_id, stask_id)
-                logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
-                rpt_mgr.write_stat_to_csv(golden_csv, job_name_str)
+            golden_csv = task_mgr.task_golden_result_file(task_id)
+            logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
+            rpt_mgr.write_stat_to_csv(golden_csv, task_mgr.task_name(task_id))
 
     if num_errors == 0:
         exit(error_codes["SUCCESS"])
