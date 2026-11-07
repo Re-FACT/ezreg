@@ -122,8 +122,18 @@ if __name__ == "__main__":
         action="store_true",
         help="Perform dry-run without running program. Useful for debugging.",
     )
-    # TODO: Add log error keyword setting file
-    # TODO: Add log qor keyword setting file
+    parser.add_argument(
+        "--parse_report_only", action="store_true", help="Skip all the jobs to run testcases and directly start from report parsing. Must have required testcases run successfully before starting this"
+    )
+    parser.add_argument(
+        "--check_qor", action="store_true", help="Check Quality-of-Result after each test"
+    )
+    parser.add_argument(
+        "--qor_report",
+        default="qor.csv",
+        help="A spreadsheet contains QoR for all the testcases that have been accomplished",
+    )
+    parser.add_argument("--create_golden", action="store_true", help="Update golden QoR files")
     # TODO: generatei HTML format report or other format
     # parser.add_argument("--report", help="Output status report")
 
@@ -170,6 +180,12 @@ if __name__ == "__main__":
     logging.info(f"Selected {t_sel.num_selected()}/{t_sel.total()} tasks")
     # Configure job manager
     job_mgr = ezreg_job_manager.EzRegJobManager()
+    # Load common settings
+    job_mgr.set_new_thread_wait_time(args.new_thread_wait_time)
+
+    # Initialize report manager
+    rpt_mgr = ezreg_report_manager.EzRegReportManager()
+
     # Add jobs one by one
     for task_id in task_mgr.tasks():
         task_name = task_mgr.task_name(task_id)
@@ -207,14 +223,58 @@ if __name__ == "__main__":
             # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id):
                 job_mgr.add_depenency(job_name, job_dep)
+            # Register output reports in report manager
+            rpt_idx = rpt_mgr.create_report_task(
+                job_name_str, task_mgr.subtask_expect_failure(task_id, stask_id)
+            )
+            for ichk in task_mgr.subtask_pass_checks(task_id, stask_id):
+                chk_ftype = task_mgr.subtask_pass_check_file_type(task_id, stask_id, ichk)
+                chk_fpath = task_mgr.subtask_pass_check_file_path(task_id, stask_id, ichk)
+                chk_fmetric = task_mgr.subtask_pass_check_requirement_file(task_id, stask_id, ichk)
+                rpt_mgr.add_report_file_to_task(rpt_idx, chk_ftype, chk_fpath, chk_fmetric)
 
     # Run jobs
-    job_mgr.run_all(args.j, args.dryrun, True)
-    num_errors += job_mgr.num_errors()
-    if num_errors:
-        logging.info(f"Regression jobs finished with {num_errors} errors")
-    else:
-        logging.info(f"Regression jobs finished successfully")
+    run_job_mgr = True
+    if args.parse_report_only:
+        run_job_mgr = False
+    if run_job_mgr:
+        job_mgr.run_all(args.j, args.dryrun, True)
+        num_errors += job_mgr.num_errors()
+        if num_errors:
+            logging.info(f"Regression jobs finished with {num_errors} errors")
+        else:
+            logging.info(f"Regression jobs finished successfully")
+
+    # Parse QoR from resulting files
+    rpt_mgr.parse()
+    if args.qor_report:
+        rpt_mgr.write_stat_to_csv(args.qor_report)
+    # Check QoR by comparing to golden results
+    if args.check_qor:
+        num_diff = 0
+        # Get the golden reference
+        for task_name in task_mgr.task_names():
+            syns_job_rundir_root = os.path.join(os.path.abspath(args.root), conf_mgr.task_root())
+            golden_csv = os.path.join(syns_job_rundir_root, task_mgr.golden_stats_file(task_name))
+            # Build a dict for diff task name
+            tolns_dict = {}
+            for subtask_name in task_mgr.subtask_names(task_name):
+                job_name_str = ".".join([task_name, subtask_name])
+                tolns_dict[job_name_str] = task_mgr.qor_check_tolerance(task_name, subtask_name)
+            num_diff += rpt_mgr.diff_stat(golden_csv, tolns_dict)
+        if num_diff == 0:
+            logging.info(f"QoR check passed")
+        else:
+            logging.error(f"QoR failed with {num_diff} errors")
+        num_errors += num_diff
+    if args.create_golden:
+        # Get the golden reference
+        for task_name in task_mgr.task_names():
+            # Each task has a dedicated file for golden stats
+            ezreg_job_rundir_root = os.path.join(os.path.abspath(args.root), conf_mgr.task_root())
+            golden_csv = os.path.join(ezreg_job_rundir_root, task_mgr.golden_stats_file(task_name))
+            logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
+            rpt_mgr.write_stat_to_csv(golden_csv, task_name)
 
     if num_errors == 0:
         exit(error_codes["SUCCESS"])

@@ -2,4 +2,4 @@
 read_verilog ${DESIGN_INPUTS}
 synth -top ${TOP_MODULE}
 write_verilog ${DESIGN_OUTPUT}
-tee -o resource.json stat -json 
+tee -o ${RESOURCE_REPORT} stat -json 

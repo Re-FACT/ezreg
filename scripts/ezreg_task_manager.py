@@ -17,7 +17,10 @@ REG_SUBTASK_TMPL_MLRV_TAG = "multiple_line_replaced_variables"
 REG_SUBTASK_TMPL_SLRV_TAG = "single_line_replaced_variables"
 REG_SUBTASK_DEP_TAG = "depend"
 REG_SUBTASK_EXPECT_FAILURE_TAG = "expect_failure"
-
+REG_SUBTASK_PASS_CHECKS_TAG = "pass_checks"
+REG_SUBTASK_PASS_CHECKS_FILE_TAG = "file"
+REG_SUBTASK_PASS_CHECKS_TYPE_TAG = "type"
+REG_SUBTASK_PASS_CHECKS_METRIC_TAG = "metric"
 
 class EzRegTaskManager:
     def __init__(self):
@@ -38,6 +41,7 @@ class EzRegTaskManager:
         )  # [itask][isubtask][var_name] = str
         self.__task_subtask_dependencies_ = []  # [itask][isubtask] = [str0, str1 ... ]
         self.__task_subtask_expect_failures_ = []  # [itask][isubtask] = bool
+        self.__task_subtask_pass_checks_ = []  # [itask][isubtask] = [list of dicts]
         self.__is_dirty_ = True  # By default it should be dirty. After loading data and pass sanity checks, it will be flipped to clean
         self.__EXPECT_FAILURE_STRING_ = {"true": True, "false": False}
         # Replace keywords
@@ -93,6 +97,13 @@ class EzRegTaskManager:
         if subtask_idx not in range(len(self.__task_subtask_names_[task_idx])):
             raise Exception(
                 f"Invalid subtask id {subtask_idx} under task '{self.task_name(task_idx)}'"
+            )
+
+    def __valid_subtask_pass_check(self, task_idx, subtask_idx, pass_check_idx):
+        self.__valid_subtask(task_idx, subtask_idx)
+        if pass_check_idx not in range(len(self.__task_subtask_pass_checks_[task_idx][subtask_idx])):
+            raise Exception(
+                f"Invalid pass check id '{pass_check_idx}' under subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx)}'"
             )
 
     def subtasks(self, task_idx):
@@ -200,6 +211,31 @@ class EzRegTaskManager:
         self.__valid_subtask(task_idx, subtask_idx)
         return self.__task_subtask_dependencies_[task_idx][subtask_idx]
 
+    def subtask_require_pass_checks(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return len(self.__task_subtask_pass_checks_[task_idx][subtask_idx]) > 0
+
+    def subtask_pass_check_file_path(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][0]
+
+    def subtask_pass_check_file_type(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][1]
+
+    def subtask_pass_check_requirement_file(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][2]
+
+    def subtask_pass_checks(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return range(len(self.__task_subtask_pass_checks_[task_idx][subtask_idx]))
+
     def is_valid(self):
         return not (self.__is_dirty_)
 
@@ -256,6 +292,7 @@ class EzRegTaskManager:
             self.__task_subtask_single_line_replaced_variables_.append([])
             self.__task_subtask_dependencies_.append([])
             self.__task_subtask_expect_failures_.append([])
+            self.__task_subtask_pass_checks_.append([])
             # Parse subtasks
             subyaml_db = {}
             with open(task_subtask_config, "r") as substream:
@@ -320,6 +357,17 @@ class EzRegTaskManager:
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
                     expect_failure = subyaml_db[subtask_name][REG_SUBTASK_EXPECT_FAILURE_TAG]
                 self.__task_subtask_expect_failures_[itask].append(expect_failure)
+                # For Qor checks 
+                if REG_SUBTASK_PASS_CHECKS_TAG in subyaml_db[subtask_name]:
+                    fchk_packet = []
+                    # Walk through each file
+                    for ifchk in range(len(subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG])):
+                        fchk_path = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_FILE_TAG]
+                        fchk_type = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_TYPE_TAG]
+                        fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_METRIC_TAG]
+                        fchk_packet.append([fchk_path, fchk_type, fchk_metric])
+                    # Register  
+                    self.__task_subtask_pass_checks_[itask].append(fchk_packet)
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):
