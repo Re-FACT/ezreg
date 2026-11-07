@@ -220,6 +220,12 @@ if __name__ == "__main__":
             curr_tool_args = tut_mgr.tool_args(curr_tool, cust_args)
             # configure tool args to job mgr
             job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
+            # Configure job pass checks
+            for ichk in task_mgr.subtask_pass_checks(task_id, stask_id):
+                chk_ftype = task_mgr.subtask_pass_check_file_type(task_id, stask_id, ichk)
+                chk_fpath = task_mgr.subtask_pass_check_file_path(task_id, stask_id, ichk)
+                chk_fmetric = task_mgr.subtask_pass_check_requirement_file(task_id, stask_id, ichk)
+                job_mgr.set_job_pass_check(job_name, chk_ftype, chk_fpath, chk_fmetric)
             # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id):
                 job_mgr.add_depenency(job_name, job_dep)
@@ -227,10 +233,10 @@ if __name__ == "__main__":
             rpt_idx = rpt_mgr.create_report_task(
                 job_name_str, task_mgr.subtask_expect_failure(task_id, stask_id)
             )
-            for ichk in task_mgr.subtask_pass_checks(task_id, stask_id):
-                chk_ftype = task_mgr.subtask_pass_check_file_type(task_id, stask_id, ichk)
-                chk_fpath = task_mgr.subtask_pass_check_file_path(task_id, stask_id, ichk)
-                chk_fmetric = task_mgr.subtask_pass_check_requirement_file(task_id, stask_id, ichk)
+            for ichk in task_mgr.subtask_qor_checks(task_id, stask_id):
+                chk_ftype = task_mgr.subtask_qor_check_file_type(task_id, stask_id, ichk)
+                chk_fpath = task_mgr.subtask_qor_check_file_path(task_id, stask_id, ichk)
+                chk_fmetric = task_mgr.subtask_qor_check_requirement_file(task_id, stask_id, ichk)
                 rpt_mgr.add_report_file_to_task(rpt_idx, chk_ftype, chk_fpath, chk_fmetric)
 
     # Run jobs
@@ -253,15 +259,12 @@ if __name__ == "__main__":
     if args.check_qor:
         num_diff = 0
         # Get the golden reference
-        for task_name in task_mgr.task_names():
-            syns_job_rundir_root = os.path.join(os.path.abspath(args.root), conf_mgr.task_root())
-            golden_csv = os.path.join(syns_job_rundir_root, task_mgr.golden_stats_file(task_name))
-            # Build a dict for diff task name
-            tolns_dict = {}
-            for subtask_name in task_mgr.subtask_names(task_name):
-                job_name_str = ".".join([task_name, subtask_name])
-                tolns_dict[job_name_str] = task_mgr.qor_check_tolerance(task_name, subtask_name)
-            num_diff += rpt_mgr.diff_stat(golden_csv, tolns_dict)
+        for task_id in task_mgr.tasks():
+            # Each task has a dedicated file for golden stats
+            golden_csv = task_mgr.golden_result_file(task_id)
+            for stask_id in task_mgr.subtasks(task_id):
+                job_name_str = task_mgr.subtask_job_name_str(task_id, stask_id)
+                num_diff += rpt_mgr.diff_stat(job_name_str, golden_csv)
         if num_diff == 0:
             logging.info(f"QoR check passed")
         else:
@@ -269,10 +272,9 @@ if __name__ == "__main__":
         num_errors += num_diff
     if args.create_golden:
         # Get the golden reference
-        for task_name in task_mgr.task_names():
+        for task_id in task_mgr.tasks():
             # Each task has a dedicated file for golden stats
-            ezreg_job_rundir_root = os.path.join(os.path.abspath(args.root), conf_mgr.task_root())
-            golden_csv = os.path.join(ezreg_job_rundir_root, task_mgr.golden_stats_file(task_name))
+            golden_csv = task_mgr.golden_result_file(task_id)
             logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
             rpt_mgr.write_stat_to_csv(golden_csv, task_name)
 

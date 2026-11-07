@@ -8,6 +8,7 @@ from pathlib import Path
 REG_TASK_TAG = "reg_tasks"
 REG_TASK_NAME_TAG = "name"
 REG_TASK_WORKSPACE_TAG = "workspace"
+REG_TASK_GOLDEN_RESULT_TAG = "golden_result"
 REG_TASK_SUBTASKS_TAG = "subtasks"
 REG_SUBTASK_ENABLE_TAG = "enable"
 REG_SUBTASK_TUT_TAG = "tool_under_test"
@@ -21,6 +22,10 @@ REG_SUBTASK_PASS_CHECKS_TAG = "pass_checks"
 REG_SUBTASK_PASS_CHECKS_FILE_TAG = "file"
 REG_SUBTASK_PASS_CHECKS_TYPE_TAG = "type"
 REG_SUBTASK_PASS_CHECKS_METRIC_TAG = "metric"
+REG_SUBTASK_QOR_CHECKS_TAG = "qor_checks"
+REG_SUBTASK_QOR_CHECKS_FILE_TAG = "file"
+REG_SUBTASK_QOR_CHECKS_TYPE_TAG = "type"
+REG_SUBTASK_QOR_CHECKS_METRIC_TAG = "metric"
 
 class EzRegTaskManager:
     def __init__(self):
@@ -28,6 +33,7 @@ class EzRegTaskManager:
         self.__task_names_ = []
         self.__task_workspaces_ = []
         self.__task_subtask_configs_ = []  # file of subtasks
+        self.__task_golden_results_ = []  # file of golden results
         # Subtasks
         self.__task_subtask_names_ = []  # [itask][isubtask] = str
         self.__task_subtask_enable_ = []  # [itask][isubtask] = bool
@@ -42,6 +48,7 @@ class EzRegTaskManager:
         self.__task_subtask_dependencies_ = []  # [itask][isubtask] = [str0, str1 ... ]
         self.__task_subtask_expect_failures_ = []  # [itask][isubtask] = bool
         self.__task_subtask_pass_checks_ = []  # [itask][isubtask] = [list of dicts]
+        self.__task_subtask_qor_checks_ = []  # [itask][isubtask] = [list of dicts]
         self.__is_dirty_ = True  # By default it should be dirty. After loading data and pass sanity checks, it will be flipped to clean
         self.__EXPECT_FAILURE_STRING_ = {"true": True, "false": False}
         # Replace keywords
@@ -104,6 +111,13 @@ class EzRegTaskManager:
         if pass_check_idx not in range(len(self.__task_subtask_pass_checks_[task_idx][subtask_idx])):
             raise Exception(
                 f"Invalid pass check id '{pass_check_idx}' under subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx)}'"
+            )
+
+    def __valid_subtask_qor_check(self, task_idx, subtask_idx, qor_check_idx):
+        self.__valid_subtask(task_idx, subtask_idx)
+        if qor_check_idx not in range(len(self.__task_subtask_qor_checks_[task_idx][subtask_idx])):
+            raise Exception(
+                f"Invalid qor check id '{qor_check_idx}' under subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx)}'"
             )
 
     def subtasks(self, task_idx):
@@ -211,11 +225,6 @@ class EzRegTaskManager:
         self.__valid_subtask(task_idx, subtask_idx)
         return self.__task_subtask_dependencies_[task_idx][subtask_idx]
 
-    def subtask_require_pass_checks(self, task_idx, subtask_idx):
-        self.__check_valid()
-        self.__valid_subtask(task_idx, subtask_idx)
-        return len(self.__task_subtask_pass_checks_[task_idx][subtask_idx]) > 0
-
     def subtask_pass_check_file_path(self, task_idx, subtask_idx, pchk_idx):
         self.__check_valid()
         self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
@@ -236,6 +245,31 @@ class EzRegTaskManager:
         self.__valid_subtask(task_idx, subtask_idx)
         return range(len(self.__task_subtask_pass_checks_[task_idx][subtask_idx]))
 
+    def subtask_require_qor_checks(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return len(self.__task_subtask_qor_checks_[task_idx][subtask_idx]) > 0
+
+    def subtask_qor_check_file_path(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_qor_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_qor_checks_[task_idx][subtask_idx][pchk_idx][0]
+
+    def subtask_qor_check_file_type(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_qor_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_qor_checks_[task_idx][subtask_idx][pchk_idx][1]
+
+    def subtask_qor_check_requirement_file(self, task_idx, subtask_idx, pchk_idx):
+        self.__check_valid()
+        self.__valid_subtask_qor_check(task_idx, subtask_idx, pchk_idx)
+        return self.__task_subtask_qor_checks_[task_idx][subtask_idx][pchk_idx][2]
+
+    def subtask_qor_checks(self, task_idx, subtask_idx):
+        self.__check_valid()
+        self.__valid_subtask(task_idx, subtask_idx)
+        return range(len(self.__task_subtask_qor_checks_[task_idx][subtask_idx]))
+
     def is_valid(self):
         return not (self.__is_dirty_)
 
@@ -251,10 +285,10 @@ class EzRegTaskManager:
                 yaml_db = yaml.load(stream, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:
                 logging.error(exc)
-        # For each sclibs
+        # For each task
         self.__task_names_ = []
         self.__task_workspaces_ = []
-        self.__task_dependencies_ = []
+        self.__task_golden_results_ = []
         # check required syntax
         self.__check_required_yaml_syntax(yaml_db, REG_TASK_TAG, "as root node")
         for itask in range(len(yaml_db[REG_TASK_TAG])):
@@ -276,13 +310,12 @@ class EzRegTaskManager:
             task_subtask_config = self.__replace_external_keyword(
                 yaml_db[REG_TASK_TAG][itask][REG_TASK_SUBTASKS_TAG]
             )
-            if REG_SUBTASK_DEP_TAG in yaml_db[REG_TASK_TAG][itask]:
-                task_deps = yaml_db[REG_TASK_TAG][itask][REG_SUBTASK_DEP_TAG]
-            task_expect_failure = False
-            if REG_SUBTASK_EXPECT_FAILURE_TAG in yaml_db[REG_TASK_TAG][itask]:
-                task_expect_failure = yaml_db[REG_TASK_TAG][itask][REG_SUBTASK_EXPECT_FAILURE_TAG]
+            task_golden_result = ""
+            if REG_TASK_GOLDEN_RESULT_TAG in yaml_db[REG_TASK_TAG][itask]:
+                task_golden_result = yaml_db[REG_TASK_TAG][itask][REG_TASK_GOLDEN_RESULT_TAG]
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
+            self.__task_golden_results_.append(task_golden_result)
             self.__task_subtask_configs_.append(task_subtask_config)
             self.__task_subtask_names_.append([])
             self.__task_subtask_enable_.append([])
@@ -293,6 +326,7 @@ class EzRegTaskManager:
             self.__task_subtask_dependencies_.append([])
             self.__task_subtask_expect_failures_.append([])
             self.__task_subtask_pass_checks_.append([])
+            self.__task_subtask_qor_checks_.append([])
             # Parse subtasks
             subyaml_db = {}
             with open(task_subtask_config, "r") as substream:
@@ -357,7 +391,7 @@ class EzRegTaskManager:
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
                     expect_failure = subyaml_db[subtask_name][REG_SUBTASK_EXPECT_FAILURE_TAG]
                 self.__task_subtask_expect_failures_[itask].append(expect_failure)
-                # For Qor checks 
+                # For pass checks 
                 if REG_SUBTASK_PASS_CHECKS_TAG in subyaml_db[subtask_name]:
                     fchk_packet = []
                     # Walk through each file
@@ -368,6 +402,17 @@ class EzRegTaskManager:
                         fchk_packet.append([fchk_path, fchk_type, fchk_metric])
                     # Register  
                     self.__task_subtask_pass_checks_[itask].append(fchk_packet)
+                # For Qor checks 
+                if REG_SUBTASK_QOR_CHECKS_TAG in subyaml_db[subtask_name]:
+                    fchk_packet = []
+                    # Walk through each file
+                    for ifchk in range(len(subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG])):
+                        fchk_path = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_FILE_TAG]
+                        fchk_type = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_TYPE_TAG]
+                        fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_METRIC_TAG]
+                        fchk_packet.append([fchk_path, fchk_type, fchk_metric])
+                    # Register  
+                    self.__task_subtask_qor_checks_[itask].append(fchk_packet)
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):
