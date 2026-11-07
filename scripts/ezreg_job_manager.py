@@ -7,6 +7,7 @@ import subprocess
 from datetime import timedelta
 from datetime import datetime
 import threading
+import ezreg_log_error_keywords
 
 # Constants
 EZREG_RUNLOG_FNAME = "_ezreg_run.log"
@@ -59,7 +60,15 @@ class EzRegJobManager:
         self.__error_counts_.append(0)
 
     def add_job_log_error_patterns(self, job_name, metric_file):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
         # Read the metric and 
+        metric_loader = EzRegLogErrorKeywords("log_error_keywords.yaml")
+        # Walk through by index using the new method
+        for iregex in metric_loader.keywords():
+            compiled_regex = metric_loader.regex(i)
+            self.__job_log_error_patterns_[job_idx].append(compiled_regex)
 
     # Set the tcl script to run the DC job
     def set_job_run_script(self, job_name, val):
@@ -199,16 +208,9 @@ class EzRegJobManager:
             end_flag = 0
             for line_num, curr_line in enumerate(log_lines):
                 status = 0
-                if re.search("ERROR", curr_line):
-                    status += 1
-                if re.search("Failed", curr_line) and not re.search("Failed 0", curr_line):
-                    status += 1
-                if re.search("Error", curr_line):
-                    status += 1
-                if re.search("Segmentation fault", curr_line):
-                    status += 1
-                if re.search("Assertion", curr_line) and re.search("failed", curr_line):
-                    status += 1
+                for compiled_regex in self.__job_log_error_patterns_[job_idx]:
+                    if compiled_regex and compiled_regex.search(test_line):
+                        status += 1
                 if status:
                     if not self.__job_expect_failures_[job_idx]:
                         logging.info("Job run error [LINE" + str(line_num) + "]: ")
