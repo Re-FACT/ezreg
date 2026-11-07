@@ -40,6 +40,12 @@ class EzRegQorJsonKeywords:
         except IndexError:
             return None
 
+    def keywords(self):
+        ret = []
+        for index in range(len(self.__metrics)):
+            ret.append(self.__metrics[index].get("keyword"))
+        return ret
+
     def keyword(self, index: int) -> Optional[str]:
         """Returns the keyword hierarchy string for the metric at the given index[cite: 3]."""
         try:
