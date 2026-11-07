@@ -19,15 +19,13 @@ and2x2:
       top_module: "[current_design]"
       resource_report: "resource.json"
   # Requirements to pass the test:
-  # - no errors in logs
-  # - Quality-of-Result metrics in bound
+  # - error patterns defined in multiple keywords
+  pass_checks:
+    - "[REQ_ROOT]/log_error_keywords.yaml"
+  # Check Quality-of-Result metrics in bound
   #   file: Specify the file to check. Assume the files are generated at the runtime workspace 
   #   type: the parser to run and extract metrics (including erros) from the metric file
   #   metric: the YAML file contains detailed metrics by name, upper/lower bound to check QoR. 
-  pass_checks:
-    - file: run.log
-      type: log
-      metric: "[REQ_ROOT]/log_error_keywords.yaml"
   qor_checks:
     - file: resource.json # Ensure this file will be outputted. Check the template tcl or the design variables
       type: json

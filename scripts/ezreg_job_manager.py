@@ -27,6 +27,7 @@ class EzRegJobManager:
         self.__job_status_data_ = []
         self.__job_rundirs_ = []
         self.__job_logs_ = []
+        self.__job_log_error_patterns_ = []
         self.__job_expect_failures_ = []
         self.__error_counts_ = []  # Flag it DC run is successfully or not
         # Constants
@@ -50,11 +51,15 @@ class EzRegJobManager:
         # TODO: may load a name for job log file
         job_log_fpath = job_name + EZREG_RUNLOG_FNAME
         self.__job_logs_.append(job_log_fpath)
+        self.__job_log_error_patterns_.append([])
         self.__job_rundirs_.append("")
         self.__job_status_data_.append([job_name, self.__TASK_STATUS_FAIL__, job_log_fpath])
         self.__job_expect_failures_.append(exp_f)
         # Clear error count
         self.__error_counts_.append(0)
+
+    def add_job_log_error_patterns(self, job_name, metric_file):
+        # Read the metric and 
 
     # Set the tcl script to run the DC job
     def set_job_run_script(self, job_name, val):

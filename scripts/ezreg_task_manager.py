@@ -19,9 +19,6 @@ REG_SUBTASK_TMPL_SLRV_TAG = "single_line_replaced_variables"
 REG_SUBTASK_DEP_TAG = "depend"
 REG_SUBTASK_EXPECT_FAILURE_TAG = "expect_failure"
 REG_SUBTASK_PASS_CHECKS_TAG = "pass_checks"
-REG_SUBTASK_PASS_CHECKS_FILE_TAG = "file"
-REG_SUBTASK_PASS_CHECKS_TYPE_TAG = "type"
-REG_SUBTASK_PASS_CHECKS_METRIC_TAG = "metric"
 REG_SUBTASK_QOR_CHECKS_TAG = "qor_checks"
 REG_SUBTASK_QOR_CHECKS_FILE_TAG = "file"
 REG_SUBTASK_QOR_CHECKS_TYPE_TAG = "type"
@@ -225,20 +222,10 @@ class EzRegTaskManager:
         self.__valid_subtask(task_idx, subtask_idx)
         return self.__task_subtask_dependencies_[task_idx][subtask_idx]
 
-    def subtask_pass_check_file_path(self, task_idx, subtask_idx, pchk_idx):
-        self.__check_valid()
-        self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
-        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][0]
-
-    def subtask_pass_check_file_type(self, task_idx, subtask_idx, pchk_idx):
-        self.__check_valid()
-        self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
-        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][1]
-
     def subtask_pass_check_requirement_file(self, task_idx, subtask_idx, pchk_idx):
         self.__check_valid()
         self.__valid_subtask_pass_check(task_idx, subtask_idx, pchk_idx)
-        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx][2]
+        return self.__task_subtask_pass_checks_[task_idx][subtask_idx][pchk_idx]
 
     def subtask_pass_checks(self, task_idx, subtask_idx):
         self.__check_valid()
@@ -393,15 +380,9 @@ class EzRegTaskManager:
                 self.__task_subtask_expect_failures_[itask].append(expect_failure)
                 # For pass checks 
                 if REG_SUBTASK_PASS_CHECKS_TAG in subyaml_db[subtask_name]:
-                    fchk_packet = []
-                    # Walk through each file
-                    for ifchk in range(len(subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG])):
-                        fchk_path = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_FILE_TAG]
-                        fchk_type = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_TYPE_TAG]
-                        fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG][ifchk][REG_SUBTASK_PASS_CHECKS_METRIC_TAG]
-                        fchk_packet.append([fchk_path, fchk_type, fchk_metric])
+                    fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG]
                     # Register  
-                    self.__task_subtask_pass_checks_[itask].append(fchk_packet)
+                    self.__task_subtask_pass_checks_[itask].append(fchk_metric)
                 # For Qor checks 
                 if REG_SUBTASK_QOR_CHECKS_TAG in subyaml_db[subtask_name]:
                     fchk_packet = []

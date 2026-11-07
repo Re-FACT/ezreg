@@ -222,10 +222,8 @@ if __name__ == "__main__":
             job_mgr.set_tool(job_name, curr_tool, curr_tool_bin, curr_tool_args)
             # Configure job pass checks
             for ichk in task_mgr.subtask_pass_checks(task_id, stask_id):
-                chk_ftype = task_mgr.subtask_pass_check_file_type(task_id, stask_id, ichk)
-                chk_fpath = task_mgr.subtask_pass_check_file_path(task_id, stask_id, ichk)
                 chk_fmetric = task_mgr.subtask_pass_check_requirement_file(task_id, stask_id, ichk)
-                job_mgr.set_job_pass_check(job_name, chk_ftype, chk_fpath, chk_fmetric)
+                job_mgr.add_job_log_error_patterns(job_name, chk_fmetric)
             # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id):
                 job_mgr.add_depenency(job_name, job_dep)
