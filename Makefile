@@ -62,6 +62,17 @@ reg_test:
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
 	--task tests/common/quick_test.yml \
+	--check_qor \
+	--root_dir ${PWD} --j ${NUM_JOBS}
+
+reg_golden:
+# Run regression tests with pre-installed tools
+	echo "==== Regression test ===="
+	${PYTHON_EXEC} scripts/run_ezreg_test.py \
+	--path_config tests/common/path_config.yml \
+	--tut_config tests/common/syn_tool_config.yml \
+	--task tests/common/quick_test.yml \
+	--create_golden \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
 doc:

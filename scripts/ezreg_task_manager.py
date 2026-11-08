@@ -305,7 +305,7 @@ class EzRegTaskManager:
             )
             task_golden_result = ""
             if REG_TASK_GOLDEN_RESULT_TAG in yaml_db[REG_TASK_TAG][itask]:
-                task_golden_result = yaml_db[REG_TASK_TAG][itask][REG_TASK_GOLDEN_RESULT_TAG]
+                task_golden_result = self.__replace_external_keyword(yaml_db[REG_TASK_TAG][itask][REG_TASK_GOLDEN_RESULT_TAG])
             self.__task_names_.append(task_name)
             self.__task_workspaces_.append(task_wkspace)
             self.__task_golden_results_.append(task_golden_result)
