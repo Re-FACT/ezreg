@@ -159,6 +159,7 @@ class EzRegReportManager:
                 if self.__report_files_[task_idx][0] == "json":
                     json_kws = ezreg_qor_json_keywords.EzRegQorJsonKeywords(self.__report_files_[task_idx][2])
                     for ikw in json_kws.metrics():
+                        curr_tolrns[json_kws.metric_name(ikw)] = {}
                         curr_tolrns[json_kws.metric_name(ikw)][UPPER_BOUND_TAG] = (
                             json_kws.upper_bound(ikw)
                         )
