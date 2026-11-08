@@ -27,6 +27,10 @@ Syntax
 
   Specify the location to the file which contains subtask definition. See details in the :ref:`file_format_subtask_file`.
 
+.. option:: golden_result="<string>"
+
+  Specify the location to the file which golden result csv.
+
 .. _file_format_task_file_reserved_words:
 
 Reserved words

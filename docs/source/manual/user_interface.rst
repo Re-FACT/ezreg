@@ -54,4 +54,21 @@ A short version of command-line options can be shown by calling the help desk th
 
   Specify the waiting time before starting a new thread (unit: second). Useful for machine which has a slow I/O speed
 
+.. option:: --parse_report_only
+
+  Skip all the jobs to run testcases and directly start from report parsing. Must have required testcases run successfully before starting this
+
+.. option:: --check_qor
+
+  Check Quality-of-Result after each test
+
+.. option:: --qor_report <string>
+
+  Generate a spreadsheet contains QoR for all the testcases that have been accomplished
+
+.. option:: --create_golden
+
+  Update golden QoR files
+
+
 
