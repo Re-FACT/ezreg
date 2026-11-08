@@ -18,6 +18,7 @@ import ezreg_tool_manager
 import ezreg_path_manager
 import ezreg_task_manager
 import ezreg_job_manager
+import ezreg_report_manager
 import ezreg_task_selection
 
 #####################################################################
@@ -48,7 +49,6 @@ def generate_run_script_file(run_script_fpath, task_mgr, task_idx, subtask_idx):
     script_writer = ezreg_script_writer.EzRegScriptWriter()
     # Set template file
     script_tmpl_file_abspath = task_mgr.subtask_template_path(task_idx, subtask_idx)
-    print(f"template: {script_tmpl_file_abspath}")
     script_writer.set_template_file(script_tmpl_file_abspath)
     # Add variables to replace
     for slrv_name in task_mgr.subtask_single_line_replace_variables(task_idx, subtask_idx):

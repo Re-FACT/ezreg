@@ -21,7 +21,7 @@ class EzRegLogErrorKeywords:
             if data and isinstance(data, dict):
                 self.__keywords = data.get("keywords", [])
         except FileNotFoundError:
-            raise FileNotFoundError(f"The configuration file '{self.file_path}' was not found.")
+            raise FileNotFoundError(f"The configuration file '{file_path}' was not found.")
         except yaml.YAMLError as e:
             raise ValueError(f"Error parsing YAML file: {e}")
 

@@ -67,10 +67,10 @@ class EzRegJobManager:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
         # Read the metric and 
-        metric_loader = EzRegLogErrorKeywords("log_error_keywords.yaml")
+        metric_loader = ezreg_log_error_keywords.EzRegLogErrorKeywords(metric_file)
         # Walk through by index using the new method
         for iregex in metric_loader.keywords():
-            compiled_regex = metric_loader.regex(i)
+            compiled_regex = metric_loader.regex(iregex)
             self.__job_log_error_patterns_[job_idx].append(compiled_regex)
 
     # Set the tcl script to run the DC job

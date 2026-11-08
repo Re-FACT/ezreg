@@ -44,7 +44,7 @@ class EzRegReportManager:
         return idx
 
     def add_report_file_to_task(self, task_idx, ftype, fpath, fmetric):
-        self.__report_files_[task_idx] = [ftype, fpath, fmetrics]
+        self.__report_files_[task_idx] = [ftype, fpath, fmetric]
 
     # Parse all the reports and summarize stats
     def parse(self):
@@ -58,7 +58,7 @@ class EzRegReportManager:
             if self.__report_files_[irpt][0] == "json":
                 self.__parse_report_json__(irpt)
 
-    def __get_json_value_by_path(self, task_idx, kw_path: str) -> Any:
+    def __get_json_value_by_path(self, task_idx, kw_path):
         """
         Traverses a nested JSON (dictionary) using a slash-separated path string.
         Example path: 'design/num_cells_by_type/$lut'[cite: 3]
@@ -82,7 +82,7 @@ class EzRegReportManager:
                 self.__report_datas_[task_idx] = json.load(frpt)
             except json.JSONDecodeError as exc:
                 logging.error(f"Invalid JSON syntax: {exc}")
-        json_kws = EzRegQorJsonKeywords(self.__report_files_[task_idx][2])
+        json_kws = ezreg_qor_json_keywords.EzRegQorJsonKeywords(self.__report_files_[task_idx][2])
         # Add records to stats
         self.__report_stats_[task_idx] = {}  # Ensure a clean start
         self.__report_stats_[task_idx][TASK_NAME_TAG] = self.__report_names_[task_idx]

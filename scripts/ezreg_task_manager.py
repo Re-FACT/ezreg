@@ -67,7 +67,7 @@ class EzRegTaskManager:
         tmp_str = in_str
         curr_subtask_dir = Path(self.__task_subtask_configs_[task_idx][subtask_idx]).parent
         tmp_str = tmp_str.replace(
-            self.__KEYWORD_CURRENT_SUBTASK_ROOT_, curr_subtask_dir
+            self.__KEYWORD_CURRENT_SUBTASK_ROOT_, str(curr_subtask_dir)
         )
         tmp_str = tmp_str.replace(
             self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx)
@@ -385,9 +385,11 @@ class EzRegTaskManager:
                 self.__task_subtask_expect_failures_[itask].append(expect_failure)
                 # For pass checks 
                 if REG_SUBTASK_PASS_CHECKS_TAG in subyaml_db[subtask_name]:
-                    fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG]
+                    fchk_metrics = []
+                    for curr_metric in subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG]:
+                        fchk_metrics.append(self.__replace_external_keyword(curr_metric))
                     # Register  
-                    self.__task_subtask_pass_checks_[itask].append(fchk_metric)
+                    self.__task_subtask_pass_checks_[itask].append(fchk_metrics)
                 # For Qor checks 
                 if REG_SUBTASK_QOR_CHECKS_TAG in subyaml_db[subtask_name]:
                     fchk_packet = []
@@ -395,7 +397,7 @@ class EzRegTaskManager:
                     for ifchk in range(len(subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG])):
                         fchk_path = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_FILE_TAG]
                         fchk_type = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_TYPE_TAG]
-                        fchk_metric = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_METRIC_TAG]
+                        fchk_metric = self.__replace_external_keyword(subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_METRIC_TAG])
                         fchk_packet.append([fchk_path, fchk_type, fchk_metric])
                     # Register  
                     self.__task_subtask_qor_checks_[itask].append(fchk_packet)
