@@ -123,7 +123,9 @@ if __name__ == "__main__":
         help="Perform dry-run without running program. Useful for debugging.",
     )
     parser.add_argument(
-        "--parse_report_only", action="store_true", help="Skip all the jobs to run testcases and directly start from report parsing. Must have required testcases run successfully before starting this"
+        "--parse_report_only",
+        action="store_true",
+        help="Skip all the jobs to run testcases and directly start from report parsing. Must have required testcases run successfully before starting this",
     )
     parser.add_argument(
         "--check_qor", action="store_true", help="Check Quality-of-Result after each test"

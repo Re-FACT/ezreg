@@ -66,7 +66,7 @@ class EzRegJobManager:
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        # Read the metric and 
+        # Read the metric and
         metric_loader = ezreg_log_error_keywords.EzRegLogErrorKeywords(metric_file)
         # Walk through by index using the new method
         for iregex in metric_loader.keywords():

@@ -24,6 +24,7 @@ REG_SUBTASK_QOR_CHECKS_FILE_TAG = "file"
 REG_SUBTASK_QOR_CHECKS_TYPE_TAG = "type"
 REG_SUBTASK_QOR_CHECKS_METRIC_TAG = "metric"
 
+
 class EzRegTaskManager:
     def __init__(self):
         # Internal data
@@ -66,9 +67,7 @@ class EzRegTaskManager:
     def __replace_keyword(self, in_str, task_idx, subtask_idx):
         tmp_str = in_str
         curr_subtask_dir = Path(self.__task_subtask_configs_[task_idx][subtask_idx]).parent
-        tmp_str = tmp_str.replace(
-            self.__KEYWORD_CURRENT_SUBTASK_ROOT_, str(curr_subtask_dir)
-        )
+        tmp_str = tmp_str.replace(self.__KEYWORD_CURRENT_SUBTASK_ROOT_, str(curr_subtask_dir))
         tmp_str = tmp_str.replace(
             self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx)
         )
@@ -105,7 +104,9 @@ class EzRegTaskManager:
 
     def __valid_subtask_pass_check(self, task_idx, subtask_idx, pass_check_idx):
         self.__valid_subtask(task_idx, subtask_idx)
-        if pass_check_idx not in range(len(self.__task_subtask_pass_checks_[task_idx][subtask_idx])):
+        if pass_check_idx not in range(
+            len(self.__task_subtask_pass_checks_[task_idx][subtask_idx])
+        ):
             raise Exception(
                 f"Invalid pass check id '{pass_check_idx}' under subtask '{self.subtask_name(task_idx, subtask_idx)}' of task '{self.task_name(task_idx)}'"
             )
@@ -383,23 +384,31 @@ class EzRegTaskManager:
                 if REG_SUBTASK_DEP_TAG in subyaml_db[subtask_name]:
                     expect_failure = subyaml_db[subtask_name][REG_SUBTASK_EXPECT_FAILURE_TAG]
                 self.__task_subtask_expect_failures_[itask].append(expect_failure)
-                # For pass checks 
+                # For pass checks
                 if REG_SUBTASK_PASS_CHECKS_TAG in subyaml_db[subtask_name]:
                     fchk_metrics = []
                     for curr_metric in subyaml_db[subtask_name][REG_SUBTASK_PASS_CHECKS_TAG]:
                         fchk_metrics.append(self.__replace_external_keyword(curr_metric))
-                    # Register  
+                    # Register
                     self.__task_subtask_pass_checks_[itask].append(fchk_metrics)
-                # For Qor checks 
+                # For Qor checks
                 if REG_SUBTASK_QOR_CHECKS_TAG in subyaml_db[subtask_name]:
                     fchk_packet = []
                     # Walk through each file
                     for ifchk in range(len(subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG])):
-                        fchk_path = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_FILE_TAG]
-                        fchk_type = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_TYPE_TAG]
-                        fchk_metric = self.__replace_external_keyword(subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][REG_SUBTASK_QOR_CHECKS_METRIC_TAG])
+                        fchk_path = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][
+                            REG_SUBTASK_QOR_CHECKS_FILE_TAG
+                        ]
+                        fchk_type = subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][
+                            REG_SUBTASK_QOR_CHECKS_TYPE_TAG
+                        ]
+                        fchk_metric = self.__replace_external_keyword(
+                            subyaml_db[subtask_name][REG_SUBTASK_QOR_CHECKS_TAG][ifchk][
+                                REG_SUBTASK_QOR_CHECKS_METRIC_TAG
+                            ]
+                        )
                         fchk_packet.append([fchk_path, fchk_type, fchk_metric])
-                    # Register  
+                    # Register
                     self.__task_subtask_qor_checks_[itask].append(fchk_packet)
 
     def __valid_dep(self, dep_name):

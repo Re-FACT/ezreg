@@ -1,12 +1,13 @@
 import yaml
 from typing import Dict, Any, Optional
 
+
 class EzRegQorJsonKeywords:
     """
-    A class to load and encapsulate metric configuration data 
+    A class to load and encapsulate metric configuration data
     from a YAML file using PyYAML without caching the file path[cite: 3].
     """
-    
+
     def __init__(self, file_path: str):
         self.__metrics = []
         self.__load_yaml(file_path)
@@ -14,9 +15,9 @@ class EzRegQorJsonKeywords:
     def __load_yaml(self, file_path: str) -> None:
         """Private method to read the YAML file and store metric data internally."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
-                
+
             if data and isinstance(data, dict):
                 # Extract the list under the 'metric' key[cite: 3]
                 self.__metrics = data.get("metric", [])
@@ -72,9 +73,9 @@ class EzRegQorJsonKeywords:
 if __name__ == "__main__":
     # Initialize the class with the YAML file[cite: 3]
     config = EzRegQorJsonKeywords("ys_rsrc_keyword.yaml")
-    
+
     print(f"Total metrics found: {config.num_metrics()}")
-    
+
     # Walk through each metric index using the methods
     for i in config.metrics():
         print(f"\nIndex: {i}")
