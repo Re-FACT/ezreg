@@ -36,6 +36,9 @@ class EzRegJobManager:
         self.__TASK_STATUS_PASS__ = "pass"
         self.__TASK_STATUS_FAIL__ = "fail"
 
+    def set_new_thread_wait_time(self, val):
+        self.__new_thread_wait_time_ = val
+
     # Create a new job
     def create_job(self, job_name, exp_f):
         if job_name in self.__job_names_:
