@@ -44,7 +44,12 @@ jobs:
         run: |
           sudo python3 -m pip install -r requirements.txt
 
-      - name: Running test
+      - name: Running test without Qor checks
+        shell: bash
+        run: |
+          make reg_test_without_qor_check
+
+      - name: Running test with Qor checks
         shell: bash
         run: |
           make reg_test
