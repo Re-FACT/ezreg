@@ -248,6 +248,13 @@ if __name__ == "__main__":
             logging.info(f"Regression jobs finished with {num_errors} errors")
         else:
             logging.info(f"Regression jobs finished successfully")
+    # Check if should early exit
+    if args.dryrun:
+        logging.info(f"Skip Qor check as dryrun is enabled by user")
+        if num_errors == 0:
+            exit(error_codes["SUCCESS"])
+        else:
+            exit(error_codes["ERROR"])
 
     # Parse QoR from resulting files
     rpt_mgr.parse()
