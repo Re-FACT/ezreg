@@ -212,7 +212,7 @@ class EzRegJobManager:
             for line_num, curr_line in enumerate(log_lines):
                 status = 0
                 for compiled_regex in self.__job_log_error_patterns_[job_idx]:
-                    if compiled_regex and compiled_regex.search(test_line):
+                    if compiled_regex and compiled_regex.search(curr_line):
                         status += 1
                 if status:
                     if not self.__job_expect_failures_[job_idx]:

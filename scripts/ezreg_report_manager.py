@@ -54,7 +54,7 @@ class EzRegReportManager:
                 continue
             elif not os.path.isfile(self.__report_files_[irpt][1]):
                 raise Exception(
-                    f"Report '{self.__report_files_[irpt]}' does not exist!\nFailed to parse the report!"
+                    f"Report '{self.__report_files_[irpt][1]}' does not exist!\nFailed to parse the report!"
                 )
             if self.__report_files_[irpt][0] == "json":
                 self.__parse_report_json__(irpt)

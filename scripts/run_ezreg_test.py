@@ -215,7 +215,7 @@ if __name__ == "__main__":
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # Config the tool, binary and args for the current job
             cust_args = {}
-            cust_args[ezreg_tool_manager.TCL_KEYWORD] = [
+            cust_args[ezreg_tool_manager.RUNTIME_SCRIPT_KEYWORD] = [
                 str(os.path.abspath(curr_run_script_fpath))
             ]
             curr_tool_bin = tut_mgr.binary_path(curr_tool)

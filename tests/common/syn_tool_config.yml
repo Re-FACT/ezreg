@@ -7,7 +7,8 @@
 # Where in the task configuration file,
 #   - the '[runtime_script]' is defined through the syntax 'runtime_script' 
 yosys:
-  bin: yosys
+#  bin: yosys
+  bin: /home/xifan/github/OpenFPGA/build/yosys/yosys
   runtime_script: run.ys
   options: "kargs"
 #  options: "pargs kargs"
