@@ -226,7 +226,10 @@ class EzRegTaskManager:
     def subtask_dependencies(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
-        return self.__task_subtask_dependencies_[task_idx][subtask_idx]
+        final_dep = []
+        for raw_dep in self.__task_subtask_dependencies_[task_idx][subtask_idx]:
+            final_dep.append("_".join([self.__task_names_[task_idx], raw_dep]))
+        return final_dep
 
     def subtask_pass_check_requirement_file(self, task_idx, subtask_idx, pchk_idx):
         self.__check_valid()
@@ -415,7 +418,7 @@ class EzRegTaskManager:
 
     def __valid_dep(self, dep_name):
         for itask in range(len(self.__task_names_)):
-            for isubtask in range(len(self.__task_subtask_names_[itask][isubtask])):
+            for isubtask in range(len(self.__task_subtask_names_[itask])):
                 if dep_name == self.__task_subtask_names_[itask][isubtask]:
                     return True
         return False

@@ -50,7 +50,7 @@ and2x2:
       design_output: "and2x2_post_synth.v"
       top_module: "[current_design]"
       resource_report: "resource.json"
-  deps:
+  depend:
     - "and2"
   # Requirements to pass the test:
   # - error patterns defined in multiple keywords

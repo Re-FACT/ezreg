@@ -228,7 +228,7 @@ if __name__ == "__main__":
                 job_mgr.add_job_log_error_patterns(job_name, chk_fmetric)
             # Set job dependencies
             for job_dep in task_mgr.subtask_dependencies(task_id, stask_id):
-                job_mgr.add_depenency(job_name, job_dep)
+                job_mgr.add_job_dependency(job_name, job_dep)
             # Register output reports in report manager
             rpt_idx = rpt_mgr.create_report_task(
                 job_name_str, task_mgr.subtask_expect_failure(task_id, stask_id)

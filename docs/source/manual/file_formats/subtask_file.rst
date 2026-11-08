@@ -35,9 +35,15 @@ Syntax
 
   Define the variable to be replaced in the final script when being generated from the template file. Each variable must be a string. 
 
-.. option:: dep="<string>"
+.. option:: depend="<string>"
 
-  Define the dependency for a testcase. Must be a list of valid subtask names in the same subtask file. A testcase will be executed before all the dependent testcases are finished successfully.
+  Define the dependency for a testcase. Must be a list of valid subtask names in the same subtask file. A testcase will be executed before all the dependent testcases are finished successfully. For example,
+
+.. code-block::
+
+  depend:
+    - "and2"
+    - "and2x2"
 
 .. option:: expect_failures="<bool>"
 

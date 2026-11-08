@@ -103,11 +103,11 @@ class EzRegJobManager:
         self.__job_rundirs_[job_idx] = val
 
     # Set the tcl script to run the reg test job
-    def set_job_deps(self, job_name, val):
+    def add_job_dependency(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        self.__job_deps_[job_idx] = val
+        self.__job_deps_[job_idx].append(val)
 
     # Get result data for give job
     def job_status_data(self, job_name):
