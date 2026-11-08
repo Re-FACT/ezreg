@@ -3,14 +3,8 @@ import yaml
 import os
 import json
 import csv
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
 import re
-from collections import OrderedDict
-from matplotlib.ticker import FuncFormatter
 import copy
-from itertools import zip_longest
 import ezreg_qor_json_keywords
 
 # Constants
