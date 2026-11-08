@@ -15,6 +15,7 @@ KARGS_NAME_TAG = "name"
 # Keywords
 RUNTIME_SCRIPT_KEYWORD = "[runtime_script]"
 
+
 # Class of a tool manager
 class EzRegToolManager:
     def __init__(self):
