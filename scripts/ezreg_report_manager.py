@@ -1,6 +1,7 @@
 import logging
 import yaml
 import os
+import json
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,7 +90,7 @@ class EzRegReportManager:
         self.__report_stats_[task_idx][TASK_NAME_TAG] = self.__report_names_[task_idx]
         # For all the data, load each of them
         for imetric in json_kws.metrics():
-            metric_name = json_kws.metric(imetric)
+            metric_name = json_kws.metric_name(imetric)
             metric_kw = json_kws.keyword(imetric)
             extract_val = self.__get_json_value_by_path(task_idx, metric_kw)
             if extract_val is None:
