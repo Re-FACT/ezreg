@@ -7,6 +7,7 @@ import subprocess
 from datetime import timedelta
 from datetime import datetime
 import threading
+import ezreg_log_error_keywords
 
 # Constants
 EZREG_RUNLOG_FNAME = "_ezreg_run.log"
@@ -27,12 +28,16 @@ class EzRegJobManager:
         self.__job_status_data_ = []
         self.__job_rundirs_ = []
         self.__job_logs_ = []
+        self.__job_log_error_patterns_ = []
         self.__job_expect_failures_ = []
-        self.__error_counts_ = []  # Flag it DC run is successfully or not
+        self.__error_counts_ = []  # Flag it reg test run is successfully or not
         # Constants
         self.__TASK_STATUS_INIT__ = "fresh"
         self.__TASK_STATUS_PASS__ = "pass"
         self.__TASK_STATUS_FAIL__ = "fail"
+
+    def set_new_thread_wait_time(self, val):
+        self.__new_thread_wait_time_ = val
 
     # Create a new job
     def create_job(self, job_name, exp_f):
@@ -50,13 +55,25 @@ class EzRegJobManager:
         # TODO: may load a name for job log file
         job_log_fpath = job_name + EZREG_RUNLOG_FNAME
         self.__job_logs_.append(job_log_fpath)
+        self.__job_log_error_patterns_.append([])
         self.__job_rundirs_.append("")
         self.__job_status_data_.append([job_name, self.__TASK_STATUS_FAIL__, job_log_fpath])
         self.__job_expect_failures_.append(exp_f)
         # Clear error count
         self.__error_counts_.append(0)
 
-    # Set the tcl script to run the DC job
+    def add_job_log_error_patterns(self, job_name, metric_file):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
+        # Read the metric and
+        metric_loader = ezreg_log_error_keywords.EzRegLogErrorKeywords(metric_file)
+        # Walk through by index using the new method
+        for iregex in metric_loader.keywords():
+            compiled_regex = metric_loader.regex(iregex)
+            self.__job_log_error_patterns_[job_idx].append(compiled_regex)
+
+    # Set the tcl script to run the reg test job
     def set_job_run_script(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
@@ -76,21 +93,21 @@ class EzRegJobManager:
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        return self.__rundirs_[job_idx]
+        return self.__job_rundirs_[job_idx]
 
-    # Set the tcl script to run the DC job
+    # Set the tcl script to run the reg test job
     def set_rundir(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
         self.__job_rundirs_[job_idx] = val
 
-    # Set the tcl script to run the DC job
-    def set_job_deps(self, job_name, val):
+    # Set the tcl script to run the reg test job
+    def add_job_dependency(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        self.__job_deps_[job_idx] = val
+        self.__job_deps_[job_idx].append(val)
 
     # Get result data for give job
     def job_status_data(self, job_name):
@@ -102,7 +119,7 @@ class EzRegJobManager:
     def jobs(self):
         return self.__job_names_
 
-    # Run a DC job with a given job name
+    # Run a reg test job with a given job name
     def __thread_run_job(
         self, thread_sema, job_name, dryrun, check_log, job_status, job_time, curr_dir
     ):
@@ -194,16 +211,9 @@ class EzRegJobManager:
             end_flag = 0
             for line_num, curr_line in enumerate(log_lines):
                 status = 0
-                if re.search("ERROR", curr_line):
-                    status += 1
-                if re.search("Failed", curr_line) and not re.search("Failed 0", curr_line):
-                    status += 1
-                if re.search("Error", curr_line):
-                    status += 1
-                if re.search("Segmentation fault", curr_line):
-                    status += 1
-                if re.search("Assertion", curr_line) and re.search("failed", curr_line):
-                    status += 1
+                for compiled_regex in self.__job_log_error_patterns_[job_idx]:
+                    if compiled_regex and compiled_regex.search(curr_line):
+                        status += 1
                 if status:
                     if not self.__job_expect_failures_[job_idx]:
                         logging.info("Job run error [LINE" + str(line_num) + "]: ")

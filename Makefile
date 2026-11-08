@@ -55,13 +55,33 @@ quick_test:
 	--dryrun \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
-reg_test:
-# Run regression tests with pre-installed tools
+reg_test_without_qor_check:
+# Run regression tests with pre-installed tools but without qor check
 	echo "==== Regression test ===="
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
 	--task tests/common/quick_test.yml \
+	--root_dir ${PWD} --j ${NUM_JOBS}
+
+reg_test:
+# Run regression tests with pre-installed tools and qor check
+	echo "==== Regression test ===="
+	${PYTHON_EXEC} scripts/run_ezreg_test.py \
+	--path_config tests/common/path_config.yml \
+	--tut_config tests/common/syn_tool_config.yml \
+	--task tests/common/quick_test.yml \
+	--check_qor \
+	--root_dir ${PWD} --j ${NUM_JOBS}
+
+reg_golden:
+# Create golden results for regression tests
+	echo "==== Regression test ===="
+	${PYTHON_EXEC} scripts/run_ezreg_test.py \
+	--path_config tests/common/path_config.yml \
+	--tut_config tests/common/syn_tool_config.yml \
+	--task tests/common/quick_test.yml \
+	--create_golden \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
 doc:

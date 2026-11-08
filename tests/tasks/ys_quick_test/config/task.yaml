@@ -1,5 +1,37 @@
 # Subtasks
 # Each entity has a unique name
+and2:
+  enable: true # If set false, the subtask will not be added
+  tool_under_test: yosys # Use the tool configuration file setting. Must be a valid entity name
+  template:
+    path: "[TEMPLATE_ROOT]/ys_run_tmpl.ys" # Template path has a root from the configuration file 
+    # For muiltiple line replaced variables, each match will create a new line
+    # For example, 
+    #   read_verilog and2.v
+    #   read_verilog and2x2.v
+    multiple_line_replaced_variables: 
+      design_inputs:
+        - "[BENCHMARK_ROOT]/and2x2/and2.v"
+    # For single line replaced variables, each match will only modify the line matched
+    single_line_replaced_variables: 
+      design_output: "and2_post_synth.v"
+      top_module: "[current_design]"
+      resource_report: "resource.json"
+  # Requirements to pass the test:
+  # - error patterns defined in multiple keywords
+  pass_checks:
+    - "[REQ_ROOT]/log_error_keywords.yaml"
+  # Check Quality-of-Result metrics in bound
+  #   file: Specify the file to check. Assume the files are generated at the runtime workspace 
+  #   type: the parser to run and extract metrics (including erros) from the metric file
+  #   metric: the YAML file contains detailed metrics by name, upper/lower bound to check QoR. 
+  qor_checks:
+    # The runtime workspace path will be added to each file below. If your output directory is different. Use a relative path like "../report/resource.json"
+    - file: resource.json # Ensure this file will be outputted. Check the template tcl or the design variables
+      type: json
+      metric: "[REQ_ROOT]/ys_rsrc_keywords.yaml"
+  # Define if the checks should pass or fail. By default, expect pass
+  expect_failure: false
 and2x2:
   enable: true # If set false, the subtask will not be added
   tool_under_test: yosys # Use the tool configuration file setting. Must be a valid entity name
@@ -15,7 +47,25 @@ and2x2:
         - "[BENCHMARK_ROOT]/and2x2/and2x2.v"
     # For single line replaced variables, each match will only modify the line matched
     single_line_replaced_variables: 
-      design_output: "and2_post_synth.v"
+      design_output: "and2x2_post_synth.v"
       top_module: "[current_design]"
+      resource_report: "resource.json"
+  depend:
+    - "and2"
+  # Requirements to pass the test:
+  # - error patterns defined in multiple keywords
+  pass_checks:
+    - "[REQ_ROOT]/log_error_keywords.yaml"
+  # Check Quality-of-Result metrics in bound
+  #   file: Specify the file to check. Assume the files are generated at the runtime workspace 
+  #   type: the parser to run and extract metrics (including erros) from the metric file
+  #   metric: the YAML file contains detailed metrics by name, upper/lower bound to check QoR. 
+  qor_checks:
+    # The runtime workspace path will be added to each file below. If your output directory is different. Use a relative path like "../report/resource.json"
+    - file: resource.json # Ensure this file will be outputted. Check the template tcl or the design variables
+      type: json
+      metric: "[REQ_ROOT]/ys_rsrc_keywords.yaml"
+  # Define if the checks should pass or fail. By default, expect pass
+  expect_failure: false
       
     

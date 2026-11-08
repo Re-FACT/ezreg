@@ -35,9 +35,15 @@ Syntax
 
   Define the variable to be replaced in the final script when being generated from the template file. Each variable must be a string. 
 
-.. option:: dep="<string>"
+.. option:: depend="<string>"
 
-  Define the dependency for a testcase. Must be a list of valid subtask names in the same subtask file. A testcase will be executed before all the dependent testcases are finished successfully.
+  Define the dependency for a testcase. Must be a list of valid subtask names in the same subtask file. A testcase will be executed before all the dependent testcases are finished successfully. For example,
+
+.. code-block::
+
+  depend:
+    - "and2"
+    - "and2x2"
 
 .. option:: expect_failures="<bool>"
 
@@ -66,7 +72,7 @@ Reserved words
 --------------
 
 Variables can be defined from the path configuration file.
-For example, the variable ``[TASK_ROOT]`` is defined in the path configuraiton file
+For example, the variable ``[TASK_ROOT]`` is defined in the path configuration file
 
 .. code-block::
 
@@ -75,3 +81,4 @@ For example, the variable ``[TASK_ROOT]`` is defined in the path configuraiton f
 Name patterns can be used in the synthesis tasks. The following reserved word is supported
 
 - ``[current_design]``: Once defined, the content will be replaced by the design name that is specified in the subtask name
+- ``[current_subtask_root]``: Once defined, the content will be replaced by the absolute path to the parent directory of the current subtask configuration file

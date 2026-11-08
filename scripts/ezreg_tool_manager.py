@@ -13,7 +13,7 @@ KARGS_NAME_TAG = "name"
 
 # Constants
 # Keywords
-TCL_KEYWORD = "[tcl]"
+RUNTIME_SCRIPT_KEYWORD = "[runtime_script]"
 
 
 # Class of a tool manager

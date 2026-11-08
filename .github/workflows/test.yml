@@ -44,7 +44,62 @@ jobs:
         run: |
           sudo python3 -m pip install -r requirements.txt
 
-      - name: Running test
+      - name: Running test without Qor checks
+        shell: bash
+        run: |
+          make reg_test_without_qor_check
+
+      - name: Running test with Qor checks
         shell: bash
         run: |
           make reg_test
+
+      - name: Runtime file tree
+        if: failure()
+        run:
+          tree tests/task
+
+      - name: Upload runtime workspace for debgging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg_test_artifacts
+          # Captures every file inside any folder starting with '_work'
+          path: tests/tasks/**/_work*/** 
+
+  create_golden:
+    name: Reg golden
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install OSS CAD Suite (includes Yosys)
+        uses: YosysHQ/setup-oss-cad-suite@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
+          
+      - name: Verify Yosys Installation
+        run: yosys --version
+
+      - name: Install dependencies
+        run: |
+          sudo python3 -m pip install -r requirements.txt
+
+      - name: Running test
+        shell: bash
+        run: |
+          make reg_golden
+
+      - name: Runtime file tree
+        if: failure()
+        run:
+          tree tests/tasks
+
+      - name: Upload runtime workspace for debgging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg_golden_artifacts
+          # Captures every file inside any folder starting with '_work'
+          path: tests/tasks/**/_work*/** 
