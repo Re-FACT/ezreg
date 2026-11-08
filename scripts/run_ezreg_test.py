@@ -235,7 +235,7 @@ if __name__ == "__main__":
             )
             for ichk in task_mgr.subtask_qor_checks(task_id, stask_id):
                 chk_ftype = task_mgr.subtask_qor_check_file_type(task_id, stask_id, ichk)
-                chk_fpath = task_mgr.subtask_qor_check_file_path(task_id, stask_id, ichk)
+                chk_fpath = os.path.join(job_mgr.rundir(job_name), task_mgr.subtask_qor_check_file_path(task_id, stask_id, ichk))
                 chk_fmetric = task_mgr.subtask_qor_check_requirement_file(task_id, stask_id, ichk)
                 rpt_mgr.add_report_file_to_task(rpt_idx, chk_ftype, chk_fpath, chk_fmetric)
 

@@ -30,7 +30,7 @@ class EzRegJobManager:
         self.__job_logs_ = []
         self.__job_log_error_patterns_ = []
         self.__job_expect_failures_ = []
-        self.__error_counts_ = []  # Flag it DC run is successfully or not
+        self.__error_counts_ = []  # Flag it reg test run is successfully or not
         # Constants
         self.__TASK_STATUS_INIT__ = "fresh"
         self.__TASK_STATUS_PASS__ = "pass"
@@ -73,7 +73,7 @@ class EzRegJobManager:
             compiled_regex = metric_loader.regex(iregex)
             self.__job_log_error_patterns_[job_idx].append(compiled_regex)
 
-    # Set the tcl script to run the DC job
+    # Set the tcl script to run the reg test job
     def set_job_run_script(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
@@ -93,16 +93,16 @@ class EzRegJobManager:
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
-        return self.__rundirs_[job_idx]
+        return self.__job_rundirs_[job_idx]
 
-    # Set the tcl script to run the DC job
+    # Set the tcl script to run the reg test job
     def set_rundir(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
         self.__job_rundirs_[job_idx] = val
 
-    # Set the tcl script to run the DC job
+    # Set the tcl script to run the reg test job
     def set_job_deps(self, job_name, val):
         if job_name not in self.__job_names_:
             raise Exception("Intend to access/mutate a job which has not been created!")
@@ -119,7 +119,7 @@ class EzRegJobManager:
     def jobs(self):
         return self.__job_names_
 
-    # Run a DC job with a given job name
+    # Run a reg test job with a given job name
     def __thread_run_job(
         self, thread_sema, job_name, dryrun, check_log, job_status, job_time, curr_dir
     ):

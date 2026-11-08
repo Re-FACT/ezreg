@@ -27,6 +27,7 @@ and2x2:
   #   type: the parser to run and extract metrics (including erros) from the metric file
   #   metric: the YAML file contains detailed metrics by name, upper/lower bound to check QoR. 
   qor_checks:
+    # The runtime workspace path will be added to each file below. If your output directory is different. Use a relative path like "../report/resource.json"
     - file: resource.json # Ensure this file will be outputted. Check the template tcl or the design variables
       type: json
       metric: "[REQ_ROOT]/ys_rsrc_keywords.yaml"
