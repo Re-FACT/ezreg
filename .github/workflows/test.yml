@@ -59,6 +59,14 @@ jobs:
         run:
           tree tests/task
 
+      - name: Upload runtime workspace for debgging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg_test_artifacts
+          # Captures every file inside any folder starting with '_work'
+          path: tests/tasks/**/_work*/** 
+
   create_golden:
     name: Reg golden
     runs-on: ubuntu-latest
@@ -87,3 +95,11 @@ jobs:
         if: failure()
         run:
           tree tests/tasks
+
+      - name: Upload runtime workspace for debgging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg_golden_artifacts
+          # Captures every file inside any folder starting with '_work'
+          path: tests/tasks/**/_work*/** 
