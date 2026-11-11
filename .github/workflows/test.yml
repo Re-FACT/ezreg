@@ -47,12 +47,12 @@ jobs:
       - name: Running test without Qor checks
         shell: bash
         run: |
-          make reg_test_without_qor_check
+          make reg_test
 
       - name: Running test with Qor checks
         shell: bash
         run: |
-          make reg_test
+          make reg_test CHECK_QOR=ON
 
       - name: Runtime file tree
         if: failure()
@@ -90,6 +90,11 @@ jobs:
         shell: bash
         run: |
           make reg_golden
+
+      - name: Running test to parse report only
+        shell: bash
+        run: |
+          make reg_golden PARSE_REPORT_ONLY=ON
 
       - name: Runtime file tree
         if: failure()
