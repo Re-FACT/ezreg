@@ -1,5 +1,5 @@
 # this is a script just to validate ezreg's template script writers
 read_verilog ${DESIGN_INPUTS}
-synth -top ${TOP_MODULE}
+synth_xilinx -top ${TOP_MODULE}
 write_verilog ${DESIGN_OUTPUT}
 tee -o ${RESOURCE_REPORT} stat -json 

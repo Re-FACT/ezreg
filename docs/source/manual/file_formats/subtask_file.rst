@@ -45,6 +45,30 @@ Syntax
     - "and2"
     - "and2x2"
 
+.. option:: pass_checks="<list>"
+
+  Specify a list of log check keyword files which should be applied on checking the logs in the testcase. See details in :ref:`file_format_log_check_keyword_file`
+
+.. option:: qor_checks="<list>"
+
+  Detailed settings to apply QoR check on the testcase
+
+.. option:: file="<string>"
+
+  Specify the report file path which contains QoR metrics. By default, find the file under the runtime workspace of the testcase. If the report file is outside the workspace, add relative path to it. For example,
+
+.. code-block::
+
+  - file: ../reports/area_report.txt 
+
+.. option:: type="[json|log]"
+
+  Specify the type of the report files. Dedicated file parser will be allocated when parsing Qor metrics and different type of keywords are required.
+
+.. option:: metric="[string]"
+
+  Specify the metrics to be extracted from the report files. See details in :ref:`file_format_qor_check_keyword_file`
+
 .. option:: expect_failures="<bool>"
 
   Define if the testcase is expected to be failed. By default, it is ``false``.
