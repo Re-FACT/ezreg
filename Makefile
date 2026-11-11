@@ -11,6 +11,17 @@ NUM_JOBS = 2
 # Format executables
 PYTHON_FORMAT_EXEC ?= black
 
+# Reg test switches
+CHECK_QOR_FLAGS =
+ifeq ($(CHECK_QOR), ON)
+CHECK_QOR_FLAGS = --check_qor
+endif
+
+PARSE_REPORT_ONLY_FLAGS =
+ifeq ($(PARSE_REPORT_ONLY), ON)
+PARSE_REPORT_ONLY_FLAGS = --parse_report_only
+endif
+
 .SILENT:
 
 # Put it first so that "make" without argument is like "make help".
@@ -54,34 +65,23 @@ quick_test:
 	--task tests/common/quick_test.yml \
 	--dryrun \
 	--root_dir ${PWD} --j ${NUM_JOBS}
-
-reg_test_without_qor_check:
-# Run regression tests with pre-installed tools but without qor check
-	echo "==== Regression test ===="
-	${PYTHON_EXEC} scripts/run_ezreg_test.py \
-	--path_config tests/common/path_config.yml \
-	--tut_config tests/common/syn_tool_config.yml \
-	--task tests/common/quick_test.yml \
-	--root_dir ${PWD} --j ${NUM_JOBS}
-
 reg_test:
-# Run regression tests with pre-installed tools and qor check
+# Run regression tests with pre-installed tools. Use CHECK_QOR=ON to enable qor check
 	echo "==== Regression test ===="
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
-	--task tests/common/quick_test.yml \
-	--check_qor \
+	--task tests/common/quick_test.yml ${CHECK_QOR_FLAG} \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
 reg_golden:
-# Create golden results for regression tests
+# Create golden results for regression tests. Use PARSE_REPORT_ONLY=ON to skip tool run and focus on qor extraction
 	echo "==== Regression test ===="
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
 	--task tests/common/quick_test.yml \
-	--create_golden \
+	--create_golden ${PARSE_REPORT_ONLY_FLAGS} \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
 doc:
