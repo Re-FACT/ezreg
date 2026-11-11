@@ -1,0 +1,5 @@
+metric:
+ - name: num_of_lut2
+   keyword: "design/num_cells_by_type/LUT2"
+   upper_bound: 0.3
+   lower_bound: 0.3

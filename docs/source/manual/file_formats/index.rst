@@ -17,3 +17,7 @@ Ezreg widely uses YAML formats for interchangable files
    path_config_file
 
    tool_config_file
+
+   log_check_keyword_file
+
+   qor_check_keyword_file
