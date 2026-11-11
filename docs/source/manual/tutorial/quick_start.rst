@@ -28,26 +28,26 @@ If you are using ezreg as a submodule, suggest to place it under the ``tests`` d
 
 .. code-block::
 
-tests
-├── ezreg
-├── benchmarks
-│   └── and2x2
-│       ├── and2.v
-│       └── and2x2.v
-├── common
-│   ├── path_config.yml
-│   ├── quick_test.yml
-│   └── syn_tool_config.yml
-├── requirements
-│   ├── log_error_keywords.yaml
-│   └── ys_rsrc_keywords.yaml
-├── tasks
-│   └── ys_quick_test
-│       └── config
-│           ├── golden.csv
-│           └── task.yaml
-└── tmpl
-    └── ys_run_tmpl.ys
+  tests
+  ├── ezreg
+  ├── benchmarks
+  │   └── and2x2
+  │       ├── and2.v
+  │       └── and2x2.v
+  ├── common
+  │   ├── path_config.yml
+  │   ├── quick_test.yml
+  │   └── syn_tool_config.yml
+  ├── requirements
+  │   ├── log_error_keywords.yaml
+  │   └── ys_rsrc_keywords.yaml
+  ├── tasks
+  │   └── ys_quick_test
+  │       └── config
+  │           ├── golden.csv
+  │           └── task.yaml
+  └── tmpl
+      └── ys_run_tmpl.ys
 
 In the example, the tests contains a list of files as inputs:
 
