@@ -137,6 +137,8 @@ Note that, in the example, it requires that the ``yosys`` binary is in the syste
     kargs:
       - name: "-s [runtime_script]"
 
+.. _tutorial_quickstart_run_script_tmpl:
+
 Run Script Template
 ~~~~~~~~~~~~~~~~~~~
 
@@ -162,6 +164,8 @@ Note that each line contains a variable in the format of ``${}`` whose actual va
   write_verilog ${DESIGN_OUTPUT}
   tee -o ${RESOURCE_REPORT} stat -json 
 
+.. _tutorial_quickstart_task_config:
+
 Task Configuration
 ~~~~~~~~~~~~~~~~~~
 
@@ -169,6 +173,8 @@ A regression task should be defined in a task configuration file.
 Here is an example of the ``common/quick_test.yaml`` 
 
 .. code-block:: yaml
+  :caption: Example task configuration file
+  :name: tutorial_quickstart_example_task
 
   reg_tasks:
     - name: ys_quick_test
@@ -187,7 +193,7 @@ A subtask configuration file can be created.
 Here is an example of the ``tasks/ys_quick_test/config/task.yaml`` 
 
 .. code-block:: yaml
-  :caption: Example tool configuration file
+  :caption: Example subtask configuration file
   :name: tutorial_quickstart_example_subtask
 
   and2:
@@ -308,13 +314,231 @@ In the golden results (csv file format), the metric will be named as ``num_of_lu
 
 During the QoR check, as defined in the ``upper_bound`` and ``lower_bound``, ezreg will fail when the number of luts is 30% higher than the golden result ``1`` or 50% lower than the golden result. 
 
+.. _tutorial_quickstart_dryrun_reg_test:
+
+Dryrun regression tests
+~~~~~~~~~~~~~~~~~~~~~~~
+
+After all the required inputs are ready, now it is time to run the regression tests.
+Assume you are under the parent directory of the ``tests``.
+If this is the first to launch your regression test, suggest to dryrun the regression tests.
+
+.. code-block::
+
+  python3 tests/ezreg/scripts/run_ezreg_test.py --path_config tests/common/path_config.yml --tut_config tests/common/syn_tool_config.yml --task tests/common/quick_test.yml --root_dir . --dryrun 
+
+In dryrun mode, ezreg will 
+
+- create workspace for each testcase 
+- generate runtime script
+- show guidelines with exact commands to run each testcase
+
+In dryrun mode, ezreg will not call the EDA tool under test, check log and QoR.
+
+After calling ezreg in dryrun mode, You may see the following printed on your screen 
+
+.. code-block:: 
+
+  ==== Quick test ====
+  INFO: Found 1 tasks
+  INFO: Selected 2/2 tasks
+  INFO: Writing run script file '/home/xtang/github/tests/tasks/ys_quick_test/_work/and2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000306
+  INFO: Writing run script file '/home/xtang/github/tests/tasks/ys_quick_test/_work/and2x2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000211
+  INFO: ys_quick_test_and2 start at......................... 2026-11-11T09:57:23.833658
+  INFO: User choose to perform dryrun
+   User may run with 
+  	yosys -s /home/xtang/github/tests/tasks/ys_quick_test/_work/and2/run.ys > ys_quick_test_and2_ezreg_run.log
+  INFO: ys_quick_test_and2 ends  at......................... 2026-11-11T09:57:23.833804
+  INFO: ys_quick_test_and2 ............................................................ [Pass]
+  INFO: ys_quick_test_and2......................................... took 0:00:00.000147
+  INFO: ys_quick_test_and2x2 start at....................... 2026-11-11T09:57:24.835084
+  INFO: User choose to perform dryrun
+   User may run with 
+  	yosys -s /home/xtang/github/tests/tasks/ys_quick_test/_work/and2x2/run.ys > ys_quick_test_and2x2_ezreg_run.log
+  INFO: ys_quick_test_and2x2 ends  at....................... 2026-11-11T09:57:24.835244
+  INFO: ys_quick_test_and2x2 .......................................................... [Pass]
+  INFO: ys_quick_test_and2x2....................................... took 0:00:00.000160
+  INFO: Finished 2 jobs
+  INFO: 	Passed 2
+  INFO: 	Failed 0
+  INFO: 
+  	[Fail*] Expect fail but it passed in the run
+  INFO: 
+  	[Pass*] Expect fail but it failed in the run
+  INFO: Regression jobs finished successfully
+  INFO: Skip Qor check as dryrun is enabled by user
+
+
+You may follow the guideline on try a testcase, e.g., 
+
+.. code-block::
+
+  cd /home/xtang/github/tests/tasks/ys_quick_test/_work/and2x2
+  yosys -s /home/xtang/github/tests/tasks/ys_quick_test/_work/and2x2/run.ys > ys_quick_test_and2x2_ezreg_run.log
+
+- If any error occurs, debug can start immediately.
+- If it finishes successfully, you can move to run regression tests 
+
+.. _tutorial_quickstart_run_reg_test:
+
 Run regression tests
 ~~~~~~~~~~~~~~~~~~~~
 
-After all the required inputs are ready, now it is time to run the regression tests.
+Once you can pass dryrun mode and local run can also pass, it is time to try running regression tests without Qor check
 Assume you are under the parent directory of the ``tests``.
 You can run the regression tests
 
 .. code-block::
 
-  python3 tests/ezreg/scripts/run_ezreg_test.py --path_config tests/common/path_config.yml --tut_config tests/common/syn_tool_config.yml --task tests/common/quick_test/yml --root_dir . 
+  python3 tests/ezreg/scripts/run_ezreg_test.py --path_config tests/common/path_config.yml --tut_config tests/common/syn_tool_config.yml --task tests/common/quick_test.yml --root_dir . 
+
+Ezreg will 
+
+- create workspace for each testcase 
+- generate runtime script
+- run the EDA tool under test in the dedicated workspace for each testcase.
+- check logs on errors and parse all the reports for QoR metrics
+
+You may see the following printed on your screen 
+
+.. code-block::
+
+  ==== Regression test ====
+  INFO: Found 1 tasks
+  INFO: Selected 2/2 tasks
+  INFO: Writing run script file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000338
+  INFO: Writing run script file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2x2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000244
+  INFO: ys_quick_test_and2 start at......................... 2026-11-11T10:18:34.703993
+  INFO: ys_quick_test_and2 ends  at......................... 2026-11-11T10:18:36.983773
+  INFO: Checking log file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2/ys_quick_test_and2_ezreg_run.log'...
+  INFO: Checking log file took 0:00:00.002428
+  INFO: ys_quick_test_and2 ............................................................ [Pass]
+  INFO: ys_quick_test_and2......................................... took 0:00:02.279779
+  INFO: ys_quick_test_and2x2 start at....................... 2026-11-11T10:18:36.986690
+  INFO: ys_quick_test_and2x2 ends  at....................... 2026-11-11T10:18:39.279089
+  INFO: Checking log file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2x2/ys_quick_test_and2x2_ezreg_run.log'...
+  INFO: Checking log file took 0:00:00.002235
+  INFO: ys_quick_test_and2x2 .......................................................... [Pass]
+  INFO: ys_quick_test_and2x2....................................... took 0:00:02.292399
+  INFO: Finished 2 jobs
+  INFO: 	Passed 2
+  INFO: 	Failed 0
+  INFO: 
+  	[Fail*] Expect fail but it passed in the run
+  INFO: 
+  	[Pass*] Expect fail but it failed in the run
+  INFO: Regression jobs finished successfully
+
+.. _tutorial_quickstart_create_golden:
+
+Create Golden Results
+~~~~~~~~~~~~~~~~~~~~~
+
+If your regression tests pass, the remaining work is on the QoR checks.
+Note that in :ref:`tutorial_quickstart_run_reg_test`, QoR check is not enabled as there are not golden results yet.
+In this step, you can run Ezreg to generate golden results:
+
+.. note:: Each time new testcases are added, you need to update the golden results 
+
+.. code-block::
+
+  python3 tests/ezreg/scripts/run_ezreg_test.py --path_config tests/common/path_config.yml --tut_config tests/common/syn_tool_config.yml --task tests/common/quick_test.yml --root_dir . --create_golden --parse_report_only
+
+Ezreg will skip running EDA tool under test, and directly start  
+
+- checking logs on errors
+- parsing all the reports for QoR metrics
+- creating golden result as designated in :ref:`tutorial_quickstart_example_task`
+
+You may see the following printed on your screen 
+
+.. code-block::
+
+  ==== Regression test ====
+  INFO: Found 1 tasks
+  INFO: Selected 2/2 tasks
+  INFO: Writing run script file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000322
+  INFO: Writing run script file '/home/xifan/github/tests/tasks/ys_quick_test/_work/and2x2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000208
+  INFO: Created/Updated golden QoR for task 'ys_quick_test' under '/home/xifan/github/tests/tasks/ys_quick_test/config/golden.csv'
+  
+The golden result file is humanreadble in CSV format. For example, 
+
+.. code-block::
+
+  task,num_of_gates
+  ys_quick_test.and2,1
+  ys_quick_test.and2x2,2
+
+.. _tutorial_quickstart_qor_check:
+
+QoR Check
+~~~~~~~~~
+
+If your golden results are set, you can start iteration on regression tests with the QoR checks.
+Note that in :ref:`tutorial_quickstart_run_reg_test`, QoR check is not enabled as there are not golden results yet.
+In this step, you can run Ezreg with Qor check enabled:
+
+.. code-block::
+
+  python3 tests/ezreg/scripts/run_ezreg_test.py --path_config tests/common/path_config.yml --tut_config tests/common/syn_tool_config.yml --task tests/common/quick_test.yml --root_dir . --check_qor
+
+Ezreg will skip running EDA tool under test, and directly start  
+
+- create workspace for each testcase 
+- generate runtime script
+- run the EDA tool under test in the dedicated workspace for each testcase.
+- checking logs on errors
+- parsing all the reports for QoR metrics
+- compare to golden result and check if all the QoR metrics are in acceptable ranges
+
+You may see the following printed on your screen 
+
+.. code-block::
+
+  ==== Regression test ====
+  INFO: Found 1 tasks
+  INFO: Selected 2/2 tasks
+  INFO: Writing run script file '/home/xifan/github/refact-fpga/ezreg/tests/tasks/ys_quick_test/_work/and2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000307
+  INFO: Writing run script file '/home/xifan/github/refact-fpga/ezreg/tests/tasks/ys_quick_test/_work/and2x2/run.ys'...
+  INFO: Write runtime script file took 0:00:00.000195
+  INFO: ys_quick_test_and2 start at......................... 2026-11-11T10:34:08.737307
+  INFO: ys_quick_test_and2 ends  at......................... 2026-11-11T10:34:11.036718
+  INFO: Checking log file '/home/xifan/github/refact-fpga/ezreg/tests/tasks/ys_quick_test/_work/and2/ys_quick_test_and2_ezreg_run.log'...
+  INFO: Checking log file took 0:00:00.002448
+  INFO: ys_quick_test_and2 ............................................................ [Pass]
+  INFO: ys_quick_test_and2......................................... took 0:00:02.299411
+  INFO: ys_quick_test_and2x2 start at....................... 2026-11-11T10:34:11.039632
+  INFO: ys_quick_test_and2x2 ends  at....................... 2026-11-11T10:34:13.336430
+  INFO: Checking log file '/home/xifan/github/refact-fpga/ezreg/tests/tasks/ys_quick_test/_work/and2x2/ys_quick_test_and2x2_ezreg_run.log'...
+  INFO: Checking log file took 0:00:00.002428
+  INFO: ys_quick_test_and2x2 .......................................................... [Pass]
+  INFO: ys_quick_test_and2x2....................................... took 0:00:02.296798
+  INFO: Finished 2 jobs
+  INFO: 	Passed 2
+  INFO: 	Failed 0
+  INFO: 
+  	[Fail*] Expect fail but it passed in the run
+  INFO: 
+  	[Pass*] Expect fail but it failed in the run
+  INFO: Regression jobs finished successfully
+  INFO: QoR check passed
+
+If the QoR check failed, details about which metric failed in which testcase will be printed.
+For example, 
+
+.. code-block::
+
+  INFO: Regression jobs finished successfully
+  INFO: 'num_of_luts' of design 'ys_quick_test.and2' in current run (1) exceeds the lower bound limit 0.3 (reference value is 4)
+  INFO: 'num_of_luts' of design 'ys_quick_test.and2x2' in current run (2) exceeds the lower bound limit 0.3 (reference value is 6)
+  INFO: 'num_of_luts' of design 'ys_quick_test.and2' in current run (1) exceeds the lower bound limit 0.3 (reference value is 4)
+  INFO: 'num_of_luts' of design 'ys_quick_test.and2x2' in current run (2) exceeds the lower bound limit 0.3 (reference value is 6)
+  ERROR: QoR failed with 4 errors
+  
