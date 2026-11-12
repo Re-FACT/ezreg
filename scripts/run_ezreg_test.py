@@ -200,6 +200,7 @@ if __name__ == "__main__":
             if not t_sel.is_selected(job_name_str):
                 continue
             if not task_mgr.subtask_enable(task_id, stask_id):
+                logging.info(f"Bypass job '{job_name_str}' as it is disabled by user")
                 continue
             job_mgr.create_job(job_name, task_mgr.subtask_expect_failure(task_id, stask_id))
             curr_rundir = task_mgr.subtask_workspace(task_id, stask_id)
