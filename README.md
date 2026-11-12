@@ -1,5 +1,7 @@
 # ezreg
 
+![ezreg_Logo](docs/source/appendix/ezreg_logo.png)
+
 [![Test](https://github.com/Re-FACT/ezreg/actions/workflows/test.yml/badge.svg)](https://github.com/Re-FACT/ezreg/actions/workflows/test.yml)
 [![Code Format](https://github.com/Re-FACT/ezreg/actions/workflows/format.yaml/badge.svg)](https://github.com/Re-FACT/ezreg/actions/workflows/format.yaml)
 
