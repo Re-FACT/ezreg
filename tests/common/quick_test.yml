@@ -8,3 +8,6 @@ reg_tasks:
   - name: ys_quick_test_no_qor_check
     workspace: "[TASK_ROOT]/ys_quick_test_no_qor_check/_work"
     subtasks: "[TASK_ROOT]/ys_quick_test_no_qor_check/config/task.yaml" 
+  - name: subtask_disable
+    workspace: "[TASK_ROOT]/subtask_disable/_work"
+    subtasks: "[TASK_ROOT]/subtask_disable/config/task.yaml" 
