@@ -158,7 +158,7 @@ html_css_files = [
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_logo = 'appendix/ezreg_logo.webp'
+html_logo = 'appendix/ezreg_logo.png'
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -208,6 +208,7 @@ latex_documents = [
     (master_doc, 'ezreg.tex', u'ezreg Documentation',
      u'ReFACT', 'manual'),
 ]
+latex_logo = 'appendix/ezreg_logo.png'
 
 
 # -- Options for manual page output ------------------------------------------
