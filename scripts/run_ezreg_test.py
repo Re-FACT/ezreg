@@ -289,6 +289,7 @@ if __name__ == "__main__":
                 logging.info(
                     f"Skip creating/updating golden QoR for task '{task_name}' as not required"
                 )
+                continue
             logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
             rpt_mgr.write_stat_to_csv(golden_csv, task_mgr.task_name(task_id))
 
