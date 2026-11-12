@@ -45,7 +45,7 @@ class EzRegReportManager:
     # Parse all the reports and summarize stats
     def parse(self):
         for irpt in range(len(self.__report_names_)):
-            if not self.__report_files_[irpt]: 
+            if not self.__report_files_[irpt]:
                 logging.info(f"Bypass report checks for task '{self.__report_names_[irpt]}'")
                 continue
             if self.__report_expect_failure_[irpt]:
