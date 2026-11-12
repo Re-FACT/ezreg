@@ -372,7 +372,7 @@ class EzRegTaskManager:
                 ]
                 # Fill data
                 self.__task_subtask_names_[itask].append(subtask_name)
-                self.__task_subtask_enable_[itask].append(subtask_name)
+                self.__task_subtask_enable_[itask].append(subtask_enable)
                 self.__task_subtask_tut_[itask].append(subtask_tut)
                 self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
                 curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][
