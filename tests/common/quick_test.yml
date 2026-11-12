@@ -5,3 +5,6 @@ reg_tasks:
     subtasks: "[TASK_ROOT]/ys_quick_test/config/task.yaml" 
     # If there are golden results, pass checks can be performed
     golden_result: "[TASK_ROOT]/ys_quick_test/config/golden.csv"
+  - name: ys_quick_test_no_qor_check
+    workspace: "[TASK_ROOT]/ys_quick_test_no_qor_check/_work"
+    subtasks: "[TASK_ROOT]/ys_quick_test_no_qor_check/config/task.yaml" 
