@@ -65,6 +65,7 @@ quick_test:
 	--task tests/common/quick_test.yml \
 	--dryrun \
 	--root_dir ${PWD} --j ${NUM_JOBS}
+
 reg_test:
 # Run regression tests with pre-installed tools. Use CHECK_QOR=ON to enable qor check
 	echo "==== Regression test ===="

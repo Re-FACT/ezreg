@@ -264,6 +264,8 @@ class EzRegTaskManager:
     def subtask_qor_checks(self, task_idx, subtask_idx):
         self.__check_valid()
         self.__valid_subtask(task_idx, subtask_idx)
+        if len(self.__task_subtask_qor_checks_[task_idx]) == 0:
+            return range(0)
         return range(len(self.__task_subtask_qor_checks_[task_idx][subtask_idx]))
 
     def is_valid(self):

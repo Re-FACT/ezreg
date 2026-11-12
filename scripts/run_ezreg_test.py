@@ -285,6 +285,11 @@ if __name__ == "__main__":
         for task_id in task_mgr.tasks():
             # Each task has a dedicated file for golden stats
             golden_csv = task_mgr.task_golden_result_file(task_id)
+            if not golden_csv:
+                logging.info(
+                    f"Skip creating/updating golden QoR for task '{task_name}' as not required"
+                )
+                continue
             logging.info(f"Created/Updated golden QoR for task '{task_name}' under '{golden_csv}'")
             rpt_mgr.write_stat_to_csv(golden_csv, task_mgr.task_name(task_id))
 
