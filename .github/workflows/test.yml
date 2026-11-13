@@ -107,6 +107,16 @@ jobs:
           echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
           echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
 
+      - name: Verify Yosys
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "PATH=$PATH"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin" | head -n 20
+          which yosys || true
+          "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin/yosys.exe" -V
+
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
@@ -116,6 +126,7 @@ jobs:
           python-override: false # Keep false (default) so it doesn't hijack Python
   
       - name: Verify Yosys Installation
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           yosys --version
@@ -221,6 +232,16 @@ jobs:
           echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
           echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
 
+      - name: Verify Yosys
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "PATH=$PATH"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin" | head -n 20
+          which yosys || true
+          "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin/yosys.exe" -V
+
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
@@ -230,6 +251,7 @@ jobs:
           python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           yosys --version
