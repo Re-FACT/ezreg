@@ -79,6 +79,7 @@ jobs:
           key: oss-cad-suite-windows-x64-2026-11-12
 
       - name: Setup OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
         shell: bash
         run: |
           VERSION="2026-11-12"
@@ -188,6 +189,7 @@ jobs:
           key: oss-cad-suite-windows-x64-2026-11-12
 
       - name: Setup OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
         shell: bash
         run: |
           VERSION="2026-11-12"
