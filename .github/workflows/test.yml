@@ -116,6 +116,7 @@ jobs:
           python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
+        shell: bash
         run: yosys --version
 
       # Setup clean system Python across all OSes
@@ -227,6 +228,7 @@ jobs:
           python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
+        shell: bash
         run: yosys --version
 
       # Setup clean system Python across all OSes
