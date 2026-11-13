@@ -9,13 +9,16 @@ NUM_JOBS = 2
 
 # Configure python
 PYTHON_EXEC=python3
-ifdef VIRTUAL_ENV
-  PYTHON_EXEC ?= python
+ifneq ("$(wildcard .venv/Scripts/python.exe)","")
+  PYTHON_EXEC := .venv/Scripts/python.exe
+else ifneq ("$(wildcard .venv/bin/python)","")
+  PYTHON_EXEC := .venv/bin/python
 else ifeq ($(OS),Windows_NT)
-  PYTHON_EXEC ?= python
+  PYTHON_EXEC := python
 else
-  PYTHON_EXEC ?= python3
+  PYTHON_EXEC := python3
 endif
+
 
 # Format executables
 PYTHON_FORMAT_EXEC ?= black
