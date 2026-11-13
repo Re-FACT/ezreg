@@ -10,8 +10,18 @@ on:
 
 jobs:
   quick_test:
-    name: Quick tests
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Quick test (Windows)"
+            os: windows-latest
+          - name: "Quick test (Mac OS)"
+            os: macos-latest
+          - name: "Quick test (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -26,8 +36,18 @@ jobs:
           make quick_test
 
   reg_test:
-    name: Reg tests
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Reg test (Windows)"
+            os: windows-latest
+          - name: "Reg test (Mac OS)"
+            os: macos-latest
+          - name: "Reg test (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -68,8 +88,18 @@ jobs:
           path: tests/tasks/**/_work*/** 
 
   create_golden:
-    name: Reg golden
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Reg golden (Windows)"
+            os: windows-latest
+          - name: "Reg golden (Mac OS)"
+            os: macos-latest
+          - name: "Reg golden (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
