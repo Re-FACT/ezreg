@@ -70,7 +70,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 1. Cache the downloaded .tgz archive on Windows
+      # Cache the downloaded .tgz archive on Windows
       - name: Cache OSS CAD Suite archive (Windows)
         id: cache-oss-cad
         if: runner.os == 'Windows'
@@ -79,7 +79,6 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
@@ -186,7 +185,6 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
@@ -210,7 +208,6 @@ jobs:
           # Expose EDA tools (Yosys, Verilator, etc.) to subsequent workflow steps
           echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
-
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
