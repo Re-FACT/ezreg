@@ -107,6 +107,36 @@ jobs:
           echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
           echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
 
+      - name: Inspect OSS CAD Suite wrappers
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          SUITE="$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite"
+          cat "$SUITE/environment.bat"
+          echo "---"
+          ls -la "$SUITE/bin/yosys"*
+          head -n 20 "$SUITE/bin/yosys" || true
+
+      - name: Load OSS CAD Suite environment
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          SUITE_WIN="${RUNNER_TEMP}"'\oss-cad-suite'
+          # Run environment.bat inside cmd.exe and capture the resulting environment
+          cmd //c "call \"$SUITE_WIN\environment.bat\" && set" | while IFS='=' read -r key val; do
+            case "$key" in
+              PATH)
+                # Prepend the OSS CAD Suite paths before /ucrt64/bin
+                echo "$SUITE_WIN\bin" >> "$GITHUB_PATH"
+                echo "$SUITE_WIN\lib" >> "$GITHUB_PATH"
+                ;;
+              YOSYS_DATDIR|SSL_CERT_FILE|QT_PLUGIN_PATH|GDK_PIXBUF_MODULEDIR)
+                echo "$key=$val" >> "$GITHUB_ENV"
+                ;;
+            esac
+          done
+
+
       - name: Verify Yosys
         if: runner.os == 'Windows'
         shell: bash
