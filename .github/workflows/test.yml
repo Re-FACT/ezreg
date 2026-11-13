@@ -69,7 +69,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       # 1. Cache the downloaded .tgz archive on Windows
       - name: Cache OSS CAD Suite archive (Windows)
         id: cache-oss-cad
@@ -86,12 +85,12 @@ jobs:
         run: |
           VERSION="2026-11-12"
           DATE_TAG="${VERSION//-/}"
-          BASE_URL="https://github.com"
-          FILE_NAME="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
-          URL="${BASE_URL}/${VERSION}/${FILE_NAME}"
+          HOST="github.com"
+          REPO="YosysHQ/oss-cad-suite-build"
+          FILE="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="https://${HOST}/${REPO}/releases/download/${VERSION}/${FILE}"
           ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
 
-          # Download only if the archive was not restored from cache
           if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
             echo "Cache miss. Downloading OSS CAD Suite..."
             curl -fsSL "$URL" -o "$ARCHIVE"
@@ -99,10 +98,7 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
 
-          # Extract the archive into the runner temp directory
           tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
-
-          # Expose EDA tools (Yosys, Verilator, etc.) to subsequent workflow steps
           echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
 
@@ -195,12 +191,12 @@ jobs:
         run: |
           VERSION="2026-11-12"
           DATE_TAG="${VERSION//-/}"
-          BASE_URL="https://github.com"
-          FILE_NAME="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
-          URL="${BASE_URL}/${VERSION}/${FILE_NAME}"
+          HOST="github.com"
+          REPO="YosysHQ/oss-cad-suite-build"
+          FILE="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="https://${HOST}/${REPO}/releases/download/${VERSION}/${FILE}"
           ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
 
-          # Download only if the archive was not restored from cache
           if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
             echo "Cache miss. Downloading OSS CAD Suite..."
             curl -fsSL "$URL" -o "$ARCHIVE"
@@ -208,10 +204,7 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
 
-          # Extract the archive into the runner temp directory
           tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
-
-          # Expose EDA tools (Yosys, Verilator, etc.) to subsequent workflow steps
           echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
 
