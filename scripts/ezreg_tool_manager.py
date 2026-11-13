@@ -21,6 +21,7 @@ class EzRegToolManager:
     def __init__(self):
         # Internal data
         self.__db_ = {}
+        self.__replace_keywords_ = {}
         self.__is_dirty_ = True  # By default it should be dirty. After loading data and pass sanity checks, it becomes clean
 
     def list_tools(self):
@@ -34,6 +35,15 @@ class EzRegToolManager:
             raise Exception(
                 f"Tool '{tool}' is not defined in the tool configuration file!\n{self.list_tools()}\n"
             )
+
+    def add_replace_keyword(self, kw, val):
+        self.__replace_keywords_[kw] = val
+
+    def __replace_external_keyword(self, in_str):
+        tmp_str = in_str
+        for kw in self.__replace_keywords_.keys():
+            tmp_str = tmp_str.replace(kw, self.__replace_keywords_[kw])
+        return tmp_str
 
     def binary_path(self, tool):
         self.__valid_tool(tool)
@@ -113,6 +123,7 @@ class EzRegToolManager:
                 arg_str += self.__tool_pargs(tool, cust_args)
             elif opt_type == KARGS_TAG:
                 arg_str += self.__tool_kargs(tool, cust_args)
+        arg_str = self.__replace_external_keyword(arg_str)
         return arg_str
 
     def empty(self):
