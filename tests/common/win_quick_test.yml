@@ -1,0 +1,20 @@
+# task configuration
+reg_tasks:
+  - name: ys_quick_test
+    workspace: "[TASK_ROOT]/ys_quick_test/_work"
+    subtasks: "[TASK_ROOT]/ys_quick_test/config/task.yaml" 
+    # If there are golden results, pass checks can be performed
+    golden_result: "[TASK_ROOT]/ys_quick_test/config/golden.csv"
+  - name: ys_quick_test_no_qor_check
+    workspace: "[TASK_ROOT]/ys_quick_test_no_qor_check/_work"
+    subtasks: "[TASK_ROOT]/ys_quick_test_no_qor_check/config/task.yaml" 
+  - name: subtask_disable
+    workspace: "[TASK_ROOT]/subtask_disable/_work"
+    subtasks: "[TASK_ROOT]/subtask_disable/config/task.yaml" 
+  - name: path_var_in_tut_config
+    workspace: "[TASK_ROOT]/path_var_in_tut_config/_work"
+    subtasks: "[TASK_ROOT]/path_var_in_tut_config/config/task.yaml" 
+  - name: slrv_only
+    workspace: "[TASK_ROOT]/slrv_only/_work"
+    subtasks: "[TASK_ROOT]/slrv_only/config/task.yaml" 
+

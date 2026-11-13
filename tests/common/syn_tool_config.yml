@@ -35,10 +35,3 @@ yosys_with_path_var:
   kargs:
     - name: "[YS_SCRIPT_CMD_OPT] [runtime_script]"
     - name: "-l [runtime_log]"
-yosys_no_direct_log_path_var:
-  bin: "[YS_BIN_PATH]"
-  runtime_script: run.ys
-  runtime_log: run.log
-  options: "kargs"
-  kargs:
-    - name: "[YS_SCRIPT_CMD_OPT] [runtime_script]"
