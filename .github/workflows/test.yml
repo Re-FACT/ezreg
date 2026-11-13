@@ -78,7 +78,7 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      - name: Install OSS CAD Suite
+      - name: Install OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
         env:
@@ -213,7 +213,7 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      - name: Install OSS CAD Suite
+      - name: Install OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
         env:
@@ -228,19 +228,29 @@ jobs:
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
           ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
+          SUITE_UNIX="$TEMP_DIR/oss-cad-suite"
+          SUITE_WIN="${RUNNER_TEMP}"'\oss-cad-suite\'
           
-          if [ ! -d "$TEMP_DIR/oss-cad-suite" ]; then
+          if [ ! -d "$SUITE_UNIX" ]; then
             echo "Downloading from: $URL"
             curl -fsSL "$URL" -o "$ARCHIVE"
             tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
             rm -f "$ARCHIVE"
-          else
-            echo "Cache hit. Skipping download."
           fi
           
-          echo "$RUNNER_TEMP"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
-          echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
-          echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
+          # Write a setup script and register it via BASH_ENV so it overrides /ucrt64/bin in every bash step
+          ENV_SCRIPT="$TEMP_DIR/oss-cad-env.sh"
+          cat << EOF > "$ENV_SCRIPT"
+          export PATH="$SUITE_UNIX/bin:$SUITE_UNIX/lib:\$PATH"
+          export YOSYSHQ_ROOT="$SUITE_WIN"
+          export SSL_CERT_FILE="${SUITE_WIN}etc\\cacert.pem"
+          export PYTHON_EXECUTABLE="${SUITE_WIN}lib\\python3.exe"
+          export QT_PLUGIN_PATH="${SUITE_WIN}lib\\qt6\\plugins"
+          export QT_LOGGING_RULES="*=false"
+          export OPENFPGALOADER_SOJ_DIR="${SUITE_WIN}share\\openFPGALoader"
+          EOF
+          
+          echo "BASH_ENV=$(cygpath -w "$ENV_SCRIPT")" >> "$GITHUB_ENV"
 
       - name: Verify Yosys
         if: runner.os == 'Windows'
