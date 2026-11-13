@@ -51,7 +51,7 @@ class EzRegToolManager:
             raise Exception(
                 f"Required syntax '{BIN_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
             )
-        return self.__db_[tool][BIN_TAG]
+        return self.__replace_external_keyword(self.__db_[tool][BIN_TAG])
 
     def runtime_script(self, tool):
         self.__valid_tool(tool)
