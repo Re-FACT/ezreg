@@ -262,6 +262,10 @@ if __name__ == "__main__":
             exit(error_codes["SUCCESS"])
         else:
             exit(error_codes["ERROR"])
+    # Check if should early exit
+    if num_errors > 0:
+        logging.info(f"Skip Qor check as some testcases already failed")
+        exit(error_codes["ERROR"])
 
     # Parse QoR from resulting files
     rpt_mgr.parse()
