@@ -78,7 +78,6 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
@@ -89,7 +88,10 @@ jobs:
           REPO="YosysHQ/oss-cad-suite-build"
           FILE="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
           URL="https://${HOST}/${REPO}/releases/download/${VERSION}/${FILE}"
-          ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
+
+          # Convert Windows path (D:\a\_temp) to Unix path (/d/a/_temp) for GNU tar
+          TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
+          ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
 
           if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
             echo "Cache miss. Downloading OSS CAD Suite..."
@@ -98,9 +100,12 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
 
-          tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
-          echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
+          # Extract using Unix-formatted paths so tar doesn't treat "D:" as a remote host
+          tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
+
+          # Expose EDA tools to subsequent workflow steps (Windows paths work best in GITHUB_PATH)
+          echo "${RUNNER_TEMP}\oss-cad-suite\bin" >> "$GITHUB_PATH"
+          echo "${RUNNER_TEMP}\oss-cad-suite\lib" >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
@@ -184,7 +189,6 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
@@ -195,7 +199,10 @@ jobs:
           REPO="YosysHQ/oss-cad-suite-build"
           FILE="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
           URL="https://${HOST}/${REPO}/releases/download/${VERSION}/${FILE}"
-          ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
+
+          # Convert Windows path (D:\a\_temp) to Unix path (/d/a/_temp) for GNU tar
+          TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
+          ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
 
           if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
             echo "Cache miss. Downloading OSS CAD Suite..."
@@ -204,9 +211,12 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
 
-          tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
-          echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
+          # Extract using Unix-formatted paths so tar doesn't treat "D:" as a remote host
+          tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
+
+          # Expose EDA tools to subsequent workflow steps (Windows paths work best in GITHUB_PATH)
+          echo "${RUNNER_TEMP}\oss-cad-suite\bin" >> "$GITHUB_PATH"
+          echo "${RUNNER_TEMP}\oss-cad-suite\lib" >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
