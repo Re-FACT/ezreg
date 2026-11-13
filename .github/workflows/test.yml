@@ -27,6 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
+        shell: bash # Force to use bash across all the platforms
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
@@ -64,6 +65,7 @@ jobs:
         run: yosys --version
 
       - name: Install dependencies
+        shell: bash # Force to use bash across all the platforms
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
@@ -120,6 +122,7 @@ jobs:
         run: yosys --version
 
       - name: Install dependencies
+        shell: bash # Force to use bash across all the platforms
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
