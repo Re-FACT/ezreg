@@ -70,22 +70,39 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup OSS CAD Suite (Manual Windows .tgz)
+      # 1. Cache the downloaded .tgz archive on Windows
+      - name: Cache OSS CAD Suite archive (Windows)
+        id: cache-oss-cad
         if: runner.os == 'Windows'
-        shell: pwsh
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite.tgz
+          key: oss-cad-suite-windows-x64-2026-11-12
+
+      # 2. Download only on cache miss, then extract and update PATH
+      - name: Setup OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          $version = "2026-11-12"
-          $dateTag = $version -replace "-", ""
-          $url = "https://github.com"
-          $archive = "$env:RUNNER_TEMP\oss-cad-suite.tgz"
-          $dest = "$env:RUNNER_TEMP"
-      
-          Invoke-WebRequest -Uri $url -OutFile $archive
-          tar -xzf $archive -C $dest
-      
-          # Add binary and library paths to GitHub Actions PATH
-          "$dest\oss-cad-suite\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "$dest\oss-cad-suite\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          VERSION="2026-11-12"
+          DATE_TAG="${VERSION//-/}"
+          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
+
+          # Download only if the archive was not restored from cache
+          if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
+            echo "Cache miss. Downloading OSS CAD Suite..."
+            curl -fsSL "$URL" -o "$ARCHIVE"
+          else
+            echo "Cache hit. Skipping download."
+          fi
+
+          # Extract the archive into the runner temp directory
+          tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
+
+          # Expose EDA tools (Yosys, Verilator, etc.) to subsequent workflow steps
+          echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
+          echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
@@ -160,22 +177,40 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup OSS CAD Suite (Manual Windows .tgz)
+      # 1. Cache the downloaded .tgz archive on Windows
+      - name: Cache OSS CAD Suite archive (Windows)
+        id: cache-oss-cad
         if: runner.os == 'Windows'
-        shell: pwsh
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite.tgz
+          key: oss-cad-suite-windows-x64-2026-11-12
+
+      # 2. Download only on cache miss, then extract and update PATH
+      - name: Setup OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          $version = "2026-11-12"
-          $dateTag = $version -replace "-", ""
-          $url = "https://github.com"
-          $archive = "$env:RUNNER_TEMP\oss-cad-suite.tgz"
-          $dest = "$env:RUNNER_TEMP"
-      
-          Invoke-WebRequest -Uri $url -OutFile $archive
-          tar -xzf $archive -C $dest
-      
-          # Add binary and library paths to GitHub Actions PATH
-          "$dest\oss-cad-suite\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "$dest\oss-cad-suite\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          VERSION="2026-11-12"
+          DATE_TAG="${VERSION//-/}"
+          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
+
+          # Download only if the archive was not restored from cache
+          if [ "${{ steps.cache-oss-cad.outputs.cache-hit }}" != "true" ]; then
+            echo "Cache miss. Downloading OSS CAD Suite..."
+            curl -fsSL "$URL" -o "$ARCHIVE"
+          else
+            echo "Cache hit. Skipping download."
+          fi
+
+          # Extract the archive into the runner temp directory
+          tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP"
+
+          # Expose EDA tools (Yosys, Verilator, etc.) to subsequent workflow steps
+          echo "${RUNNER_TEMP}/oss-cad-suite/bin" >> "$GITHUB_PATH"
+          echo "${RUNNER_TEMP}/oss-cad-suite/lib" >> "$GITHUB_PATH"
+
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
