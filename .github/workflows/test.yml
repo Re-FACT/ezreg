@@ -81,16 +81,17 @@ jobs:
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
+        env:
+          OSS_VERSION: "2026-11-12"
+          OSS_DATE_TAG: "20261112"
         run: |
-          VERSION="2026-11-12"
-          DATE_TAG="${VERSION//-/}"
-          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="https://github.com{{ env.OSS_VERSION }}/oss-cad-suite-windows-x64-${{ env.OSS_DATE_TAG }}.tgz"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
           ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
           
           if [ ! -d "${TEMP_DIR}/oss-cad-suite" ]; then
-            echo "Cache miss. Downloading OSS CAD Suite..."
+            echo "Downloading from: $URL"
             curl -fsSL "$URL" -o "$ARCHIVE"
             tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
             rm -f "$ARCHIVE"
@@ -98,7 +99,6 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
           
-          # Use single quotes around backslashes so Bash doesn't strip/escape them
           echo "${RUNNER_TEMP}"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
@@ -191,16 +191,17 @@ jobs:
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
+        env:
+          OSS_VERSION: "2026-11-12"
+          OSS_DATE_TAG: "20261112"
         run: |
-          VERSION="2026-11-12"
-          DATE_TAG="${VERSION//-/}"
-          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="https://github.com{{ env.OSS_VERSION }}/oss-cad-suite-windows-x64-${{ env.OSS_DATE_TAG }}.tgz"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
           ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
           
           if [ ! -d "${TEMP_DIR}/oss-cad-suite" ]; then
-            echo "Cache miss. Downloading OSS CAD Suite..."
+            echo "Downloading from: $URL"
             curl -fsSL "$URL" -o "$ARCHIVE"
             tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
             rm -f "$ARCHIVE"
@@ -208,7 +209,6 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
           
-          # Use single quotes around backslashes so Bash doesn't strip/escape them
           echo "${RUNNER_TEMP}"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
