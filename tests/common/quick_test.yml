@@ -17,4 +17,6 @@ reg_tasks:
   - name: slrv_only
     workspace: "[TASK_ROOT]/slrv_only/_work"
     subtasks: "[TASK_ROOT]/slrv_only/config/task.yaml" 
-
+  - name: no_direct_log
+    workspace: "[TASK_ROOT]/no_direct_log/_work"
+    subtasks: "[TASK_ROOT]/no_direct_log/config/task.yaml" 

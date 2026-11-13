@@ -1,12 +1,30 @@
 # Makefile
 SHELL=bash
-PYTHON_EXEC=python3
 VERSION_FILE = VERSION.md
 TAGGED_COMMIT_FILE = .TAGGED_COMMIT
 VERSION_BUMP_TYPE = minor
 FORCE_COMMIT_VERSION_UPDATE = off
 INFRA_ROOT = ${PWD}/utils/refact_infra/
 NUM_JOBS = 2
+
+# Configure python
+PYTHON_EXEC=python3
+# Cross-platform Python interpreter selection.
+# Checks for a local .venv first to ensure isolated dependencies are used
+# regardless of shell PATH ordering or OS differences.
+ifneq ("$(wildcard .venv/Scripts/python.exe)","")
+  # Windows virtual environment path
+  PYTHON_EXEC := .venv/Scripts/python.exe
+else ifneq ("$(wildcard .venv/bin/python)","")
+  # Linux and macOS virtual environment path
+  PYTHON_EXEC := .venv/bin/python
+else ifeq ($(OS),Windows_NT)
+  # Fallback to system Python on Windows (avoids Microsoft Store python3 stub)
+  PYTHON_EXEC := python
+else
+  # Fallback to standard Python 3 on Linux and macOS
+  PYTHON_EXEC := python3
+endif
 
 # Format executables
 PYTHON_FORMAT_EXEC ?= black
@@ -21,6 +39,16 @@ PARSE_REPORT_ONLY_FLAGS =
 ifeq ($(PARSE_REPORT_ONLY), ON)
 PARSE_REPORT_ONLY_FLAGS = --parse_report_only
 endif
+
+# Test configuration
+ifeq ($(OS),Windows_NT)
+  # Fallback to system Python on Windows (avoids Microsoft Store python3 stub)
+  REG_TEST_TASK := win_quick_test
+else
+  # Fallback to standard Python 3 on Linux and macOS
+  REG_TEST_TASK := quick_test
+endif
+
 
 .SILENT:
 
@@ -62,7 +90,7 @@ quick_test:
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
-	--task tests/common/quick_test.yml \
+	--task tests/common/${REG_TEST_TASK}.yml \
 	--dryrun \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
@@ -72,7 +100,7 @@ reg_test:
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
-	--task tests/common/quick_test.yml ${CHECK_QOR_FLAG} \
+	--task tests/common/${REG_TEST_TASK}.yml ${CHECK_QOR_FLAG} \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 
 reg_golden:
@@ -81,7 +109,7 @@ reg_golden:
 	${PYTHON_EXEC} scripts/run_ezreg_test.py \
 	--path_config tests/common/path_config.yml \
 	--tut_config tests/common/syn_tool_config.yml \
-	--task tests/common/quick_test.yml \
+	--task tests/common/${REG_TEST_TASK}.yml \
 	--create_golden ${PARSE_REPORT_ONLY_FLAGS} \
 	--root_dir ${PWD} --j ${NUM_JOBS}
 

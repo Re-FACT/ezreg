@@ -10,15 +10,43 @@ on:
 
 jobs:
   quick_test:
-    name: Quick tests
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Quick test (Windows)"
+            os: windows-latest
+          - name: "Quick test (Mac OS)"
+            os: macos-latest
+          - name: "Quick test (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Create venv and install dependencies
+        shell: bash
         run: |
-          sudo python3 -m pip install -r requirements.txt
+          python -m venv .venv
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
+          else
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
+          fi
 
       - name: Running test
         shell: bash
@@ -26,23 +54,115 @@ jobs:
           make quick_test
 
   reg_test:
-    name: Reg tests
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Reg test (Windows)"
+            os: windows-latest
+          - name: "Reg test (Mac OS)"
+            os: macos-latest
+          - name: "Reg test (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      # 1. Cache the downloaded .tgz archive on Windows
+      - name: Cache OSS CAD Suite archive (Windows)
+        id: cache-oss-cad
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite.tgz
+          key: oss-cad-suite-windows-x64-2026-11-12
+
+      - name: Install OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          OSS_VERSION: "2026-11-12"
+          OSS_DATE_TAG: "20261112"
+        run: |
+          DOMAIN="github.com"
+          ORG="YosysHQ"
+          REPO="oss-cad-suite-build"
+          FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
+          URL="https://$DOMAIN/$ORG/$REPO/releases/download/$OSS_VERSION/$FILE"
+          
+          TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
+          ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
+          SUITE_UNIX="$TEMP_DIR/oss-cad-suite"
+          SUITE_WIN="${RUNNER_TEMP}"'\oss-cad-suite\'
+          
+          if [ ! -d "$SUITE_UNIX" ]; then
+            echo "Downloading from: $URL"
+            curl -fsSL "$URL" -o "$ARCHIVE"
+            tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
+            rm -f "$ARCHIVE"
+          fi
+          
+          # Write a setup script and register it via BASH_ENV so it overrides /ucrt64/bin in every bash step
+          ENV_SCRIPT="$TEMP_DIR/oss-cad-env.sh"
+          cat << EOF > "$ENV_SCRIPT"
+          export PATH="$SUITE_UNIX/bin:$SUITE_UNIX/lib:\$PATH"
+          export YOSYSHQ_ROOT="$SUITE_WIN"
+          export SSL_CERT_FILE="${SUITE_WIN}etc\\cacert.pem"
+          export PYTHON_EXECUTABLE="${SUITE_WIN}lib\\python3.exe"
+          export QT_PLUGIN_PATH="${SUITE_WIN}lib\\qt6\\plugins"
+          export QT_LOGGING_RULES="*=false"
+          export OPENFPGALOADER_SOJ_DIR="${SUITE_WIN}share\\openFPGALoader"
+          EOF
+          
+          echo "BASH_ENV=$(cygpath -w "$ENV_SCRIPT")" >> "$GITHUB_ENV"
+
+      - name: Verify Yosys
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "PATH=$PATH"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin" | head -n 20
+          which yosys || true
+          "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin/yosys.exe" -V
 
       - name: Install OSS CAD Suite (includes Yosys)
+        if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
-          
+          version: "2026-11-12"
+          python-override: false # Keep false (default) so it doesn't hijack Python
+  
       - name: Verify Yosys Installation
-        run: yosys --version
-
-      - name: Install dependencies
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
-          sudo python3 -m pip install -r requirements.txt
+          yosys --version
+          which yosys
+
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Create venv and install dependencies
+        shell: bash
+        run: |
+          python -m venv .venv
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
+          else
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
+          fi
 
       - name: Running test without Qor checks
         shell: bash
@@ -68,23 +188,116 @@ jobs:
           path: tests/tasks/**/_work*/** 
 
   create_golden:
-    name: Reg golden
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Reg golden (Windows)"
+            os: windows-latest
+          - name: "Reg golden (Mac OS)"
+            os: macos-latest
+          - name: "Reg golden (Ubuntu)"
+            os: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 1. Cache the downloaded .tgz archive on Windows
+      - name: Cache OSS CAD Suite archive (Windows)
+        id: cache-oss-cad
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite.tgz
+          key: oss-cad-suite-windows-x64-2026-11-12
+
+      - name: Install OSS CAD Suite (Windows Workaround)
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          OSS_VERSION: "2026-11-12"
+          OSS_DATE_TAG: "20261112"
+        run: |
+          DOMAIN="github.com"
+          ORG="YosysHQ"
+          REPO="oss-cad-suite-build"
+          FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
+          URL="https://$DOMAIN/$ORG/$REPO/releases/download/$OSS_VERSION/$FILE"
+          
+          TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
+          ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
+          SUITE_UNIX="$TEMP_DIR/oss-cad-suite"
+          SUITE_WIN="${RUNNER_TEMP}"'\oss-cad-suite\'
+          
+          if [ ! -d "$SUITE_UNIX" ]; then
+            echo "Downloading from: $URL"
+            curl -fsSL "$URL" -o "$ARCHIVE"
+            tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
+            rm -f "$ARCHIVE"
+          fi
+          
+          # Write a setup script and register it via BASH_ENV so it overrides /ucrt64/bin in every bash step
+          ENV_SCRIPT="$TEMP_DIR/oss-cad-env.sh"
+          cat << EOF > "$ENV_SCRIPT"
+          export PATH="$SUITE_UNIX/bin:$SUITE_UNIX/lib:\$PATH"
+          export YOSYSHQ_ROOT="$SUITE_WIN"
+          export SSL_CERT_FILE="${SUITE_WIN}etc\\cacert.pem"
+          export PYTHON_EXECUTABLE="${SUITE_WIN}lib\\python3.exe"
+          export QT_PLUGIN_PATH="${SUITE_WIN}lib\\qt6\\plugins"
+          export QT_LOGGING_RULES="*=false"
+          export OPENFPGALOADER_SOJ_DIR="${SUITE_WIN}share\\openFPGALoader"
+          EOF
+          
+          echo "BASH_ENV=$(cygpath -w "$ENV_SCRIPT")" >> "$GITHUB_ENV"
+
+      - name: Verify Yosys
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "PATH=$PATH"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite"
+          ls -la "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin" | head -n 20
+          which yosys || true
+          "$(cygpath -u "$RUNNER_TEMP")/oss-cad-suite/bin/yosys.exe" -V
+
       - name: Install OSS CAD Suite (includes Yosys)
+        if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
+          version: "2026-11-12"
+          python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
-        run: yosys --version
-
-      - name: Install dependencies
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
-          sudo python3 -m pip install -r requirements.txt
+          yosys --version
+          which yosys
+
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Create venv and install dependencies
+        shell: bash
+        run: |
+          python -m venv .venv
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
+          else
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
+          fi
 
       - name: Running test
         shell: bash

@@ -215,10 +215,19 @@ if __name__ == "__main__":
                 curr_run_script_fpath, task_mgr, task_id, stask_id
             )
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
+            # generate log file path
+            curr_run_log_fpath = generate_run_script_fpath(
+                curr_rundir, tut_mgr.runtime_log(curr_tool)
+            )
+            job_mgr.set_job_log(job_name, curr_run_log_fpath)
+            job_mgr.set_job_log_in_args(job_name, tut_mgr.log_in_args(curr_tool))
             # Config the tool, binary and args for the current job
             cust_args = {}
             cust_args[ezreg_tool_manager.RUNTIME_SCRIPT_KEYWORD] = [
                 str(os.path.abspath(curr_run_script_fpath))
+            ]
+            cust_args[ezreg_tool_manager.RUNTIME_LOG_KEYWORD] = [
+                str(os.path.abspath(curr_run_log_fpath))
             ]
             curr_tool_bin = tut_mgr.binary_path(curr_tool)
             curr_tool_args = tut_mgr.tool_args(curr_tool, cust_args)
