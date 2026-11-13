@@ -33,22 +33,24 @@ jobs:
           python-version: '3.12' # Or '3.11', '3.13', etc.
 
       # Create venv and install requirements
-      - name: Install Python dependencies
+      - name: Create venv and install dependencies
         shell: bash
         run: |
           python -m venv .venv
-          if [ -f ".venv/Scripts/activate" ]; then
-            source .venv/Scripts/activate
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
           else
-            source .venv/bin/activate
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
           fi
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
 
       - name: Running test
         shell: bash
         run: |
-          source .venv/bin/activate
           make quick_test
 
   reg_test:
@@ -103,28 +105,29 @@ jobs:
           python-version: '3.12' # Or '3.11', '3.13', etc.
 
       # Create venv and install requirements
-      - name: Install Python dependencies
+      - name: Create venv and install dependencies
         shell: bash
         run: |
           python -m venv .venv
-          if [ -f ".venv/Scripts/activate" ]; then
-            source .venv/Scripts/activate
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
           else
-            source .venv/bin/activate
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
           fi
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
 
       - name: Running test without Qor checks
         shell: bash
         run: |
-          source .venv/bin/activate
           make reg_test
 
       - name: Running test with Qor checks
         shell: bash
         run: |
-          source .venv/bin/activate
           make reg_test CHECK_QOR=ON
 
       - name: Runtime file tree
@@ -192,28 +195,29 @@ jobs:
           python-version: '3.12' # Or '3.11', '3.13', etc.
 
       # Create venv and install requirements
-      - name: Install Python dependencies
+      - name: Create venv and install dependencies
         shell: bash
         run: |
           python -m venv .venv
-          if [ -f ".venv/Scripts/activate" ]; then
-            source .venv/Scripts/activate
+          echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
+          if [ -d ".venv/Scripts" ]; then
+            echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
+            .venv/Scripts/python.exe -m pip install --upgrade pip
+            .venv/Scripts/pip.exe install -r requirements.txt
           else
-            source .venv/bin/activate
+            echo "${PWD}/.venv/bin" >> "$GITHUB_PATH"
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
           fi
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
 
       - name: Running test
         shell: bash
         run: |
-          source .venv/bin/activate
           make reg_golden
 
       - name: Running test to parse report only
         shell: bash
         run: |
-          source .venv/bin/activate
           make reg_golden PARSE_REPORT_ONLY=ON
 
       - name: Runtime file tree
