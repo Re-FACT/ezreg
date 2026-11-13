@@ -26,12 +26,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        shell: bash # Force to use bash across all the platforms
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Install Python dependencies
+        shell: bash
         run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python3 -m pip install -r requirements.txt
+          python -m venv .venv
+          if [ -f ".venv/Scripts/activate" ]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Running test
         shell: bash
@@ -79,16 +91,29 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
           version: "2026-11-12"
+          python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
         run: yosys --version
 
-      - name: Install dependencies
-        shell: bash # Force to use bash across all the platforms
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Install Python dependencies
+        shell: bash
         run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python3 -m pip install -r requirements.txt
+          python -m venv .venv
+          if [ -f ".venv/Scripts/activate" ]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Running test without Qor checks
         shell: bash
@@ -155,16 +180,29 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
           version: "2026-11-12"
+          python-override: false # Keep false (default) so it doesn't hijack Python
           
       - name: Verify Yosys Installation
         run: yosys --version
 
-      - name: Install dependencies
-        shell: bash # Force to use bash across all the platforms
+      # Setup clean system Python across all OSes
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # Or '3.11', '3.13', etc.
+
+      # Create venv and install requirements
+      - name: Install Python dependencies
+        shell: bash
         run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python3 -m pip install -r requirements.txt
+          python -m venv .venv
+          if [ -f ".venv/Scripts/activate" ]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Running test
         shell: bash
