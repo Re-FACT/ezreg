@@ -56,10 +56,29 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup OSS CAD Suite (Manual Windows .tgz)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "2026-11-12"
+          $dateTag = $version -replace "-", ""
+          $url = "https://github.com"
+          $archive = "$env:RUNNER_TEMP\oss-cad-suite.tgz"
+          $dest = "$env:RUNNER_TEMP"
+      
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          tar -xzf $archive -C $dest
+      
+          # Add binary and library paths to GitHub Actions PATH
+          "$dest\oss-cad-suite\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "$dest\oss-cad-suite\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Install OSS CAD Suite (includes Yosys)
+        if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
+          version: "2026-11-12"
           
       - name: Verify Yosys Installation
         run: yosys --version
@@ -113,10 +132,29 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup OSS CAD Suite (Manual Windows .tgz)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "2026-11-12"
+          $dateTag = $version -replace "-", ""
+          $url = "https://github.com"
+          $archive = "$env:RUNNER_TEMP\oss-cad-suite.tgz"
+          $dest = "$env:RUNNER_TEMP"
+      
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          tar -xzf $archive -C $dest
+      
+          # Add binary and library paths to GitHub Actions PATH
+          "$dest\oss-cad-suite\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "$dest\oss-cad-suite\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Install OSS CAD Suite (includes Yosys)
+        if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
+          version: "2026-11-12"
           
       - name: Verify Yosys Installation
         run: yosys --version
