@@ -70,7 +70,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Cache the downloaded .tgz archive on Windows
+      # 1. Cache the downloaded .tgz archive on Windows
       - name: Cache OSS CAD Suite archive (Windows)
         id: cache-oss-cad
         if: runner.os == 'Windows'
@@ -79,13 +79,16 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
+      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
         run: |
           VERSION="2026-11-12"
           DATE_TAG="${VERSION//-/}"
-          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          BASE_URL="https://github.com"
+          FILE_NAME="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="${BASE_URL}/${VERSION}/${FILE_NAME}"
           ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
 
           # Download only if the archive was not restored from cache
@@ -185,13 +188,16 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
+      # 2. Download only on cache miss, then extract and update PATH
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
         run: |
           VERSION="2026-11-12"
           DATE_TAG="${VERSION//-/}"
-          URL="https://github.com{VERSION}/oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          BASE_URL="https://github.com"
+          FILE_NAME="oss-cad-suite-windows-x64-${DATE_TAG}.tgz"
+          URL="${BASE_URL}/${VERSION}/${FILE_NAME}"
           ARCHIVE="${RUNNER_TEMP}/oss-cad-suite.tgz"
 
           # Download only if the archive was not restored from cache
