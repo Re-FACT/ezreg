@@ -81,8 +81,6 @@ jobs:
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
-      - name: Install OSS CAD Suite
-        shell: bash
         env:
           OSS_VERSION: "2026-11-12"
           OSS_DATE_TAG: "20261112"
