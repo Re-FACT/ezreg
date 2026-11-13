@@ -162,6 +162,7 @@ if __name__ == "__main__":
         pvar_name = path_mgr.path_var_name(pvar)
         pval = path_mgr.path_value(pvar)
         task_mgr.add_replace_keyword(pvar_name, pval)
+        tool_mgr.add_replace_keyword(pvar_name, pval)
     # Now load from Yaml
     task_mgr.load(args.task)
 

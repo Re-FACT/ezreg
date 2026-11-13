@@ -355,11 +355,11 @@ class EzRegTaskManager:
                     REG_SUBTASK_TMPL_PATH_TAG,
                     f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'",
                 )
-                self.__check_required_yaml_syntax(
-                    subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG],
-                    REG_SUBTASK_TMPL_MLRV_TAG,
-                    f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'",
-                )
+#                self.__check_required_yaml_syntax(
+#                    subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG],
+#                    REG_SUBTASK_TMPL_MLRV_TAG,
+#                    f"under node '{REG_SUBTASK_TMPL_TAG}' of subtask '{subtask_name}' of task '{task_name}'",
+#                )
                 self.__check_required_yaml_syntax(
                     subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG],
                     REG_SUBTASK_TMPL_SLRV_TAG,
@@ -375,9 +375,11 @@ class EzRegTaskManager:
                 self.__task_subtask_enable_[itask].append(subtask_enable)
                 self.__task_subtask_tut_[itask].append(subtask_tut)
                 self.__task_subtask_template_paths_[itask].append(subtask_tmpl_path)
-                curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][
-                    REG_SUBTASK_TMPL_MLRV_TAG
-                ]
+                curr_mlrv = {}
+                if REG_SUBTASK_TMPL_MLRV_TAG not in subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG]:
+                  curr_mlrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][
+                      REG_SUBTASK_TMPL_MLRV_TAG
+                  ]
                 self.__task_subtask_multi_line_replaced_variables_[itask].append(curr_mlrv)
                 curr_slrv = subyaml_db[subtask_name][REG_SUBTASK_TMPL_TAG][
                     REG_SUBTASK_TMPL_SLRV_TAG
