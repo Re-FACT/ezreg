@@ -66,7 +66,7 @@ class EzRegTaskManager:
 
     def __replace_keyword(self, in_str, task_idx, subtask_idx):
         tmp_str = in_str
-        curr_subtask_dir = Path(self.__task_subtask_configs_[task_idx][subtask_idx]).parent
+        curr_subtask_dir = Path(self.__task_subtask_configs_[task_idx]).parent
         tmp_str = tmp_str.replace(self.__KEYWORD_CURRENT_SUBTASK_ROOT_, str(curr_subtask_dir))
         tmp_str = tmp_str.replace(
             self.__KEYWORD_CURRENT_DESIGN_, self.subtask_name(task_idx, subtask_idx)
