@@ -9,6 +9,18 @@
 yosys:
   bin: yosys
   runtime_script: run.ys
+  runtime_log: run.log
+  options: "kargs"
+#  options: "pargs kargs"
+#  pargs:
+#    - name: "[runtime_script]"
+  kargs:
+    - name: "-s [runtime_script]"
+    - name: "-l [runtime_log]"
+yosys_no_direct_log:
+  bin: yosys
+  runtime_script: run.ys
+  runtime_log: run.log
   options: "kargs"
 #  options: "pargs kargs"
 #  pargs:
@@ -18,6 +30,15 @@ yosys:
 yosys_with_path_var:
   bin: "[YS_BIN_PATH]"
   runtime_script: run.ys
+  runtime_log: run.log
+  options: "kargs"
+  kargs:
+    - name: "[YS_SCRIPT_CMD_OPT] [runtime_script]"
+    - name: "-l [runtime_log]"
+yosys_no_direct_log_path_var:
+  bin: "[YS_BIN_PATH]"
+  runtime_script: run.ys
+  runtime_log: run.log
   options: "kargs"
   kargs:
     - name: "[YS_SCRIPT_CMD_OPT] [runtime_script]"

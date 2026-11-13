@@ -23,6 +23,10 @@ For each tool, a unique name should be defined. The name will be used as the too
 
   Specify the runtime script name to be applied when running the regression test. For example, ``run.tcl`` indicates a tcl file 
 
+.. option:: runtime_log="<string>"
+
+  Specify the runtime log file name to be applied when running the regression test. For example, ``run.log`` indicates a log file 
+
 .. option:: options="<string>"
 
   Specify the command-line options (detailed arguments) when calling the tool. There are two types of arguments supported:
@@ -45,14 +49,17 @@ Positional arguments should be defined under ``pargs``. A list of arguments can 
 .. code-block::
 
   # The [runtime_script] will be replaced with an auto-generated tcl file
+  # The [runtime_log] will be replaced with the file name in runtime_log variable
   # When calling yosys, the command line options will be 
   #   /usr/bin/yosys/yosys -s local_run.ys
   yosys:
     bin: /usr/bin/yosys/yosys
   runtime_script: "local_run.ys"
+  runtime_log: "run.log"
   options: "kargs"
   kargs:
     - name: "-s [runtime_script]"
+    - name: "-l [runtime_log]"
 
 Keyword Arguments
 -----------------
@@ -66,14 +73,16 @@ Keyword arguments should be defined under ``kargs``. A list of arguments can be 
 .. code-block::
 
   # The [runtime_script] will be replaced with an auto-generated tcl file
+  # The [runtime_log] will be replaced with the file name in runtime_log variable
   # When calling yosys, the command line options will be 
   #   /usr/bin/yosys/yosys local_run.ys --log ys.log
   yosys:
     bin: /usr/bin/yosys/yosys
   runtime_script: "local_run.ys"
+  runtime_log: "ys.log"
   options: "pargs kargs"
   pargs:
     - name: "[runtime_script]"
   kargs:
-    - name: "--log ys.log"
+    - name: "--log [runtime_log]"
 
