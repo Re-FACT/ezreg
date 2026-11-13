@@ -16,7 +16,7 @@ yosys:
   kargs:
     - name: "-s [runtime_script]"
 yosys_with_path_var:
-  bin: yosys
+  bin: "[YS_BIN_PATH]"
   runtime_script: run.ys
   options: "kargs"
   kargs:
