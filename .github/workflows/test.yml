@@ -39,7 +39,6 @@ jobs:
           python -m venv .venv
           echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
           if [ -d ".venv/Scripts" ]; then
-            cp .venv/Scripts/python.exe .venv/Scripts/python3.exe
             echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
             .venv/Scripts/python.exe -m pip install --upgrade pip
             .venv/Scripts/pip.exe install -r requirements.txt
@@ -112,7 +111,6 @@ jobs:
           python -m venv .venv
           echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
           if [ -d ".venv/Scripts" ]; then
-            cp .venv/Scripts/python.exe .venv/Scripts/python3.exe
             echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
             .venv/Scripts/python.exe -m pip install --upgrade pip
             .venv/Scripts/pip.exe install -r requirements.txt
@@ -203,7 +201,6 @@ jobs:
           python -m venv .venv
           echo "VIRTUAL_ENV=${PWD}/.venv" >> "$GITHUB_ENV"
           if [ -d ".venv/Scripts" ]; then
-            cp .venv/Scripts/python.exe .venv/Scripts/python3.exe
             echo "${PWD}/.venv/Scripts" >> "$GITHUB_PATH"
             .venv/Scripts/python.exe -m pip install --upgrade pip
             .venv/Scripts/pip.exe install -r requirements.txt

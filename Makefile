@@ -1,12 +1,21 @@
 # Makefile
 SHELL=bash
-PYTHON_EXEC=python3
 VERSION_FILE = VERSION.md
 TAGGED_COMMIT_FILE = .TAGGED_COMMIT
 VERSION_BUMP_TYPE = minor
 FORCE_COMMIT_VERSION_UPDATE = off
 INFRA_ROOT = ${PWD}/utils/refact_infra/
 NUM_JOBS = 2
+
+# Configure python
+PYTHON_EXEC=python3
+ifdef VIRTUAL_ENV
+  PYTHON_EXEC ?= python
+else ifeq ($(OS),Windows_NT)
+  PYTHON_EXEC ?= python
+else
+  PYTHON_EXEC ?= python3
+endif
 
 # Format executables
 PYTHON_FORMAT_EXEC ?= black
