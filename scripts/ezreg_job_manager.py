@@ -162,7 +162,7 @@ class EzRegJobManager:
             # Run tool under test
             log_fname = self.__job_logs_[job_idx]
             run_cmd = (
-                self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx] + " > " + log_fname
+                self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx]
             )
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
