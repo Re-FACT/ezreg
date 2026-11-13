@@ -5,6 +5,7 @@ import os
 # Constants
 BIN_TAG = "bin"
 RUNTIME_SCRIPT_TAG = "runtime_script"
+RUNTIME_LOG_TAG = "runtime_log"
 OPTIONS_TAG = "options"
 PARGS_TAG = "pargs"
 PARGS_NAME_TAG = "name"
@@ -14,6 +15,7 @@ KARGS_NAME_TAG = "name"
 # Constants
 # Keywords
 RUNTIME_SCRIPT_KEYWORD = "[runtime_script]"
+RUNTIME_LOG_KEYWORD = "[runtime_log]"
 
 
 # Class of a tool manager
@@ -57,9 +59,52 @@ class EzRegToolManager:
         self.__valid_tool(tool)
         if RUNTIME_SCRIPT_TAG not in self.__db_[tool]:
             raise Exception(
-                f"Required syntax '{RUNTIME_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+                f"Required syntax '{RUNTIME_SCRIPT_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
             )
         return self.__db_[tool][RUNTIME_SCRIPT_TAG]
+
+    def runtime_log(self, tool):
+        self.__valid_tool(tool)
+        if RUNTIME_LOG_TAG not in self.__db_[tool]:
+            raise Exception(
+                f"Required syntax '{RUNTIME_LOG_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+            )
+        return self.__db_[tool][RUNTIME_LOG_TAG]
+
+    # Check log file is already specified in an argument (either keyword-based or positional)
+    def log_in_args(self, tool):
+        self.__valid_tool(tool)
+        # Get options
+        if OPTIONS_TAG not in self.__db_[tool]:
+            raise Exception(
+                f"Required syntax '{OPTIONS_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+            )
+        # Check options format
+        for opt_type in self.__db_[tool][OPTIONS_TAG].split(" "):
+            if opt_type != PARGS_TAG and opt_type != KARGS_TAG:
+                raise Exception(
+                    f"Invalid option format '{self.__db_[task_type][OPTIONS_TAG]}' is not valid under tool '{tool}' in the tool configuration file! Expect [{PARGS_TAG}|{KARGS_TAG}]\n"
+                )
+            if opt_type == PARGS_TAG:
+                for parg_idx in range(len(self.__db_[tool][PARGS_TAG])):
+                    if PARGS_NAME_TAG not in self.__db_[tool][PARGS_TAG][parg_idx]:
+                        raise Exception(
+                            f"Required syntax '{PARGS_NAME_TAG}' of '{PARGS_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+                        )
+                    parg_pattern = self.__db_[tool][PARGS_TAG][parg_idx][PARGS_NAME_TAG]
+                    if RUNTIME_LOG_KEYWORD in parg_pattern:
+                        return True
+            elif opt_type == KARGS_TAG:
+                for karg_idx in range(len(self.__db_[tool][KARGS_TAG])):
+                    if KARGS_NAME_TAG not in self.__db_[tool][KARGS_TAG][karg_idx]:
+                        raise Exception(
+                            f"Required syntax '{KARGS_NAME_TAG}' of '{KARGS_TAG}' is not defined under tool '{tool}' in the tool configuration file!\n"
+                        )
+                    karg_pattern = self.__db_[tool][KARGS_TAG][karg_idx][KARGS_NAME_TAG]
+                    if RUNTIME_LOG_KEYWORD in karg_pattern:
+                        return True
+
+        return False
 
     def __tool_pargs(self, tool, cust_args):
         if PARGS_TAG not in self.__db_[tool]:

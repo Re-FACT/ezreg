@@ -29,6 +29,7 @@ class EzRegJobManager:
         self.__job_status_data_ = []
         self.__job_rundirs_ = []
         self.__job_logs_ = []
+        self.__job_log_in_args_ = []
         self.__job_log_error_patterns_ = []
         self.__job_expect_failures_ = []
         self.__error_counts_ = []  # Flag it reg test run is successfully or not
@@ -56,6 +57,7 @@ class EzRegJobManager:
         # TODO: may load a name for job log file
         job_log_fpath = job_name + EZREG_RUNLOG_FNAME
         self.__job_logs_.append(job_log_fpath)
+        self.__job_log_in_args_.append(False)
         self.__job_log_error_patterns_.append([])
         self.__job_rundirs_.append("")
         self.__job_status_data_.append([job_name, self.__TASK_STATUS_FAIL__, job_log_fpath])
@@ -80,6 +82,20 @@ class EzRegJobManager:
             raise Exception("Intend to access/mutate a job which has not been created!")
         job_idx = self.__job_names_.index(job_name)
         self.__job_run_scripts_[job_idx] = val
+
+    # Set the tcl script to run the reg test job
+    def set_job_log(self, job_name, val):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
+        self.__job_logs_[job_idx] = val
+
+    # Set the tcl script to run the reg test job
+    def set_job_log_in_args(self, job_name, val):
+        if job_name not in self.__job_names_:
+            raise Exception("Intend to access/mutate a job which has not been created!")
+        job_idx = self.__job_names_.index(job_name)
+        self.__job_log_in_args_[job_idx] = val
 
     def set_tool(self, job_name, tool_name, tool_bin, tool_args):
         if job_name not in self.__job_names_:
@@ -163,6 +179,8 @@ class EzRegJobManager:
             # Run tool under test
             log_fname = self.__job_logs_[job_idx]
             run_cmd = self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx]
+            if not self.__job_log_in_args_[job_idx]:
+                run_cmd = run_cmd + " > " + log_fname
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
             if dryrun:
