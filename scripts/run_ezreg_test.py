@@ -274,6 +274,11 @@ if __name__ == "__main__":
         for task_id in task_mgr.tasks():
             # Each task has a dedicated file for golden stats
             golden_csv = task_mgr.task_golden_result_file(task_id)
+            if not golden_csv:
+                logging.info(
+                    f"Skip checking golden QoR for task '{task_name}' as not required"
+                )
+                continue
             for stask_id in task_mgr.subtasks(task_id):
                 job_name_str = task_mgr.subtask_job_name_str(task_id, stask_id)
                 num_diff += rpt_mgr.diff_stat(job_name_str, golden_csv)
