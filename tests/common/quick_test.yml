@@ -14,4 +14,7 @@ reg_tasks:
   - name: path_var_in_tut_config
     workspace: "[TASK_ROOT]/path_var_in_tut_config/_work"
     subtasks: "[TASK_ROOT]/path_var_in_tut_config/config/task.yaml" 
+  - name: slrv_only
+    workspace: "[TASK_ROOT]/slrv_only/_work"
+    subtasks: "[TASK_ROOT]/slrv_only/config/task.yaml" 
 
