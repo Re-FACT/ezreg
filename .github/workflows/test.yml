@@ -78,16 +78,18 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      - name: Setup OSS CAD Suite (Windows Workaround)
+      - name: Install OSS CAD Suite
         if: runner.os == 'Windows'
         shell: bash
         env:
           OSS_VERSION: "2026-11-12"
           OSS_DATE_TAG: "20261112"
         run: |
-          BASE="https://github.com"
+          DOMAIN="github.com"
+          ORG="YosysHQ"
+          REPO="oss-cad-suite-build"
           FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
-          URL="$BASE/$OSS_VERSION/$FILE"
+          URL="https://$DOMAIN/$ORG/$REPO/releases/download/$OSS_VERSION/$FILE"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
           ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
@@ -190,16 +192,18 @@ jobs:
           path: ${{ runner.temp }}/oss-cad-suite.tgz
           key: oss-cad-suite-windows-x64-2026-11-12
 
-      - name: Setup OSS CAD Suite (Windows Workaround)
+      - name: Install OSS CAD Suite
         if: runner.os == 'Windows'
         shell: bash
         env:
           OSS_VERSION: "2026-11-12"
           OSS_DATE_TAG: "20261112"
         run: |
-          BASE="https://github.com"
+          DOMAIN="github.com"
+          ORG="YosysHQ"
+          REPO="oss-cad-suite-build"
           FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
-          URL="$BASE/$OSS_VERSION/$FILE"
+          URL="https://$DOMAIN/$ORG/$REPO/releases/download/$OSS_VERSION/$FILE"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
           ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
