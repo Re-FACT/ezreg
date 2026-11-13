@@ -161,16 +161,28 @@ class EzRegJobManager:
             logging.debug(f"Changed to directory: {runtime_dir}")
             # Run tool under test
             log_fname = self.__job_logs_[job_idx]
-            run_cmd = (
-                self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx]
-            )
+            run_cmd = self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx]
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
             if dryrun:
                 logging.info(f"User choose to perform dryrun\n User may run with \n\t{run_cmd}")
             else:
-                with open(log_fname, "w") as log_f:
-                    make_process = subprocess.Popen(run_cmd, shell=True, stdout=log_f, stderr=log_f)
+                # Open with line-buffering (buffering=1) and UTF-8 encoding
+                with open(log_fname, "w", encoding="utf-8", buffering=1) as log_f:
+                    make_process = subprocess.Popen(
+                        run_cmd,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                        encoding="utf-8",
+                        errors="replace",
+                        bufsize=1,
+                    )
+                    for line in make_process.stdout:
+                        sys.stdout.write(line)  # Remove this line if you don't want console output
+                        log_f.write(line)
+                        log_f.flush()
                     if (make_process.wait()) != 0:
                         job_status[job_name] += 1
 
