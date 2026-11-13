@@ -81,16 +81,20 @@ jobs:
       - name: Setup OSS CAD Suite (Windows Workaround)
         if: runner.os == 'Windows'
         shell: bash
+      - name: Install OSS CAD Suite
+        shell: bash
         env:
           OSS_VERSION: "2026-11-12"
           OSS_DATE_TAG: "20261112"
         run: |
-          URL="https://github.com{{ env.OSS_VERSION }}/oss-cad-suite-windows-x64-${{ env.OSS_DATE_TAG }}.tgz"
+          BASE="https://github.com"
+          FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
+          URL="$BASE/$OSS_VERSION/$FILE"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
-          ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
+          ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
           
-          if [ ! -d "${TEMP_DIR}/oss-cad-suite" ]; then
+          if [ ! -d "$TEMP_DIR/oss-cad-suite" ]; then
             echo "Downloading from: $URL"
             curl -fsSL "$URL" -o "$ARCHIVE"
             tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
@@ -99,9 +103,9 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
           
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
@@ -195,12 +199,14 @@ jobs:
           OSS_VERSION: "2026-11-12"
           OSS_DATE_TAG: "20261112"
         run: |
-          URL="https://github.com{{ env.OSS_VERSION }}/oss-cad-suite-windows-x64-${{ env.OSS_DATE_TAG }}.tgz"
+          BASE="https://github.com"
+          FILE="oss-cad-suite-windows-x64-$OSS_DATE_TAG.tgz"
+          URL="$BASE/$OSS_VERSION/$FILE"
           
           TEMP_DIR="$(cygpath -u "$RUNNER_TEMP")"
-          ARCHIVE="${TEMP_DIR}/oss-cad-suite.tgz"
+          ARCHIVE="$TEMP_DIR/oss-cad-suite.tgz"
           
-          if [ ! -d "${TEMP_DIR}/oss-cad-suite" ]; then
+          if [ ! -d "$TEMP_DIR/oss-cad-suite" ]; then
             echo "Downloading from: $URL"
             curl -fsSL "$URL" -o "$ARCHIVE"
             tar -xzf "$ARCHIVE" -C "$TEMP_DIR"
@@ -209,9 +215,9 @@ jobs:
             echo "Cache hit. Skipping download."
           fi
           
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
-          echo "${RUNNER_TEMP}"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\bin' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\lib' >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP"'\oss-cad-suite\py3bin' >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
