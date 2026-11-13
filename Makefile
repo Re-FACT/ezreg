@@ -9,16 +9,22 @@ NUM_JOBS = 2
 
 # Configure python
 PYTHON_EXEC=python3
+# Cross-platform Python interpreter selection.
+# Checks for a local .venv first to ensure isolated dependencies are used
+# regardless of shell PATH ordering or OS differences.
 ifneq ("$(wildcard .venv/Scripts/python.exe)","")
+  # Windows virtual environment path
   PYTHON_EXEC := .venv/Scripts/python.exe
 else ifneq ("$(wildcard .venv/bin/python)","")
+  # Linux and macOS virtual environment path
   PYTHON_EXEC := .venv/bin/python
 else ifeq ($(OS),Windows_NT)
+  # Fallback to system Python on Windows (avoids Microsoft Store python3 stub)
   PYTHON_EXEC := python
 else
+  # Fallback to standard Python 3 on Linux and macOS
   PYTHON_EXEC := python3
 endif
-
 
 # Format executables
 PYTHON_FORMAT_EXEC ?= black
