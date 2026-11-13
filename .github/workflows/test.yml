@@ -107,6 +107,15 @@ jobs:
           echo "${RUNNER_TEMP}\oss-cad-suite\bin" >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}\oss-cad-suite\lib" >> "$GITHUB_PATH"
 
+      - name: Add OSS CAD Suite bin and lib to PATH
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          SUITE_DIR=$(find "$RUNNER_TOOL_CACHE" -maxdepth 4 -type d -name "oss-cad-suite" | head -n 1)
+          echo "Found OSS CAD Suite at: $SUITE_DIR"
+          echo "$SUITE_DIR/bin" >> "$GITHUB_PATH"
+          echo "$SUITE_DIR/lib" >> "$GITHUB_PATH"
+
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
         uses: YosysHQ/setup-oss-cad-suite@v4
@@ -114,7 +123,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional: prevents public API rate limits
           version: "2026-11-12"
           python-override: false # Keep false (default) so it doesn't hijack Python
-          
+  
       - name: Verify Yosys Installation
         shell: bash
         run: yosys --version
@@ -218,6 +227,15 @@ jobs:
           # Expose EDA tools to subsequent workflow steps (Windows paths work best in GITHUB_PATH)
           echo "${RUNNER_TEMP}\oss-cad-suite\bin" >> "$GITHUB_PATH"
           echo "${RUNNER_TEMP}\oss-cad-suite\lib" >> "$GITHUB_PATH"
+
+      - name: Add OSS CAD Suite bin and lib to PATH
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          SUITE_DIR=$(find "$RUNNER_TOOL_CACHE" -maxdepth 4 -type d -name "oss-cad-suite" | head -n 1)
+          echo "Found OSS CAD Suite at: $SUITE_DIR"
+          echo "$SUITE_DIR/bin" >> "$GITHUB_PATH"
+          echo "$SUITE_DIR/lib" >> "$GITHUB_PATH"
 
       - name: Install OSS CAD Suite (includes Yosys)
         if: runner.os != 'Windows'
