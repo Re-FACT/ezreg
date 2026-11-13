@@ -216,7 +216,9 @@ if __name__ == "__main__":
             )
             job_mgr.set_job_run_script(job_name, curr_run_script_fpath)
             # generate log file path
-            curr_run_log_fpath = generate_run_script_fpath(curr_rundir, tut_mgr.runtime_log(curr_tool))
+            curr_run_log_fpath = generate_run_script_fpath(
+                curr_rundir, tut_mgr.runtime_log(curr_tool)
+            )
             job_mgr.set_job_log(job_name, curr_run_log_fpath)
             job_mgr.set_job_log_in_args(job_name, tut_mgr.log_in_args(curr_tool))
             # Config the tool, binary and args for the current job
