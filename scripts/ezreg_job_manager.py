@@ -184,7 +184,7 @@ class EzRegJobManager:
             subp_out_target = subprocess.PIPE
             if not self.__job_log_in_args_[job_idx]:
                 run_cmd = run_cmd + " > " + log_fname
-            else
+            else:
                 subp_out_target = subprocess.DEVNULL
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
