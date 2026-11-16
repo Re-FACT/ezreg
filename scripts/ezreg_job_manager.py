@@ -179,8 +179,13 @@ class EzRegJobManager:
             # Run tool under test
             log_fname = self.__job_logs_[job_idx]
             run_cmd = self.__job_tool_bins_[job_idx] + self.__job_tool_args_[job_idx]
+            # Redirect outputs to log if the command-line options do not specify
+            # if command-line option is specified, use devnull in subprocess call
+            subp_out_target = subprocess.PIPE
             if not self.__job_log_in_args_[job_idx]:
                 run_cmd = run_cmd + " > " + log_fname
+            else:
+                subp_out_target = subprocess.DEVNULL
             logging.debug(f"Run job with the following command:\n\t" + run_cmd)
             # Current, we have to disable checks because PrimeTime has issues when loading library compilers
             if dryrun:
@@ -191,17 +196,20 @@ class EzRegJobManager:
                     make_process = subprocess.Popen(
                         run_cmd,
                         shell=True,
-                        stdout=subprocess.PIPE,
+                        stdout=subp_out_target,
                         stderr=subprocess.STDOUT,
                         text=True,
                         encoding="utf-8",
                         errors="replace",
                         bufsize=1,
                     )
-                    for line in make_process.stdout:
-                        sys.stdout.write(line)  # Remove this line if you don't want console output
-                        log_f.write(line)
-                        log_f.flush()
+                    if subp_out_target == subprocess.PIPE:
+                        for line in make_process.stdout:
+                            sys.stdout.write(
+                                line
+                            )  # Remove this line if you don't want console output
+                            log_f.write(line)
+                            log_f.flush()
                     if (make_process.wait()) != 0:
                         job_status[job_name] += 1
 
