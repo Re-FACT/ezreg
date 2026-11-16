@@ -203,7 +203,7 @@ class EzRegJobManager:
                         errors="replace",
                         bufsize=1,
                     )
-                    if subp_out_target != subprocess.PIPE:
+                    if subp_out_target == subprocess.PIPE:
                         for line in make_process.stdout:
                             sys.stdout.write(
                                 line
