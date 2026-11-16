@@ -203,10 +203,13 @@ class EzRegJobManager:
                         errors="replace",
                         bufsize=1,
                     )
-                    for line in make_process.stdout:
-                        sys.stdout.write(line)  # Remove this line if you don't want console output
-                        log_f.write(line)
-                        log_f.flush()
+                    if subp_out_target != subprocess.PIPE:
+                        for line in make_process.stdout:
+                            sys.stdout.write(
+                                line
+                            )  # Remove this line if you don't want console output
+                            log_f.write(line)
+                            log_f.flush()
                     if (make_process.wait()) != 0:
                         job_status[job_name] += 1
 
